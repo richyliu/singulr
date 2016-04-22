@@ -5,3 +5,27 @@
     top: 50%;
     left: 10px;
 }
+
+
+a, a:visited {
+    border-bottom: 1px solid transparent;
+    -webkit-transition: border .5s ease-out;
+    -moz-transition: border .5s ease-out;
+    -o-transition: border .5s ease-out;
+    transition: border .5s ease-out;
+    text-decoration: none;
+}
+
+a:hover {
+    border-color: #5c5c5c;
+    outline: 0;
+     -webkit-transition: border 0s ease-out; 
+    -moz-transition: border 0s ease-out;
+    -o-transition: border 0s ease-out;
+     transition: border 0s ease-out; 
+     text-decoration: none; 
+}
+
+a:focus {
+    text-decoration: none;
+}
