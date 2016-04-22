@@ -1,12 +1,12 @@
-/* global $ */
+/* global jQuery */
 
 
-(function () {
+(function ($) {
     var history = [];
     var options = {
         test: true
     };
-    var HOME_PAGE = 'home.html'
+    var HOME_PAGE = 'home.html';
     
     
     
@@ -32,8 +32,7 @@
         // bind event handlers
         $('a').click(function(event) {
             event.preventDefault();
-            // var page = $(this).attr('href');
-            var page = $(this).attr('url');
+            var page = $(this).attr('href');
             
             loadPage(page);
             // push to history
@@ -49,8 +48,9 @@
     
     
     function loadPage(page) {
-        $('#page').load(page);
-        bindEventHandlers();
+        $('#page').load(page, function() {
+            bindEventHandlers();
+        });
     }
     
     
@@ -64,4 +64,4 @@
         }
         console.log(history);
     }
-})();
+})(jQuery);
