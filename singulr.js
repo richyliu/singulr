@@ -7,6 +7,9 @@
         test: true
     };
     var HOME_PAGE = 'home.html';
+    var BASE_PAGE = 'base.html';
+    var PAGE_ID = 'page';
+    var CONTENT_ID = 'content';
     
     
     
@@ -17,13 +20,10 @@
         }
         
         
-        // load home page
-        $('#page').load(HOME_PAGE, function() {
-            bindEventHandlers();
+        // load base
+        $('#' + PAGE_ID).load(BASE_PAGE, function() {
+            loadPage(HOME_PAGE);
         });
-        
-        
-        // bindEventHandlers();
     };
     
     
@@ -36,19 +36,19 @@
             
             loadPage(page);
             // push to history
-            history.push(page);
+            // history.push(page);
             console.log(history);
         });
         
         
         $('#back-arrow').click(function() {
-            goBack();
+            // goBack();
         });
     }
     
     
     function loadPage(page) {
-        $('#page').load(page, function() {
+        $('#' + CONTENT_ID).load(page, function() {
             bindEventHandlers();
         });
     }
