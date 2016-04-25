@@ -11,6 +11,7 @@
     var BASE_PAGE = 'base.html';
     var PAGE_ID = 'page';
     var CONTENT_ID = 'content';
+    var STYLE_CLASS = 'css-style';
     
     
     
@@ -25,6 +26,7 @@
         if (options.basePage !== undefined) BASE_PAGE = options.basePage;
         if (options.pageId !== undefined) PAGE_ID = options.pageId;
         if (options.contentId !== undefined) CONTENT_ID = options.contentId;
+        if (options.styleClass !== undefined) STYLE_CLASS = options.styleClass;
         if (options.alteredHistory !== undefined) history = options.alteredHistory;
         
         
@@ -60,35 +62,52 @@
     
     
     function loadPage(page) {
-        $('#' + CONTENT_ID).load(page, function(result) {
+        $('#' + CONTENT_ID).load(page, function(response) {
             bindEventHandlers();
             
-            var html = $.parseXML('<t>' + result + '</t>');
+            // the t is there to make it valid xml
+            var html = $.parseXML('<t>' + response + '</t>');
+            var cssCode = [];
+            var cssSrc = [];
+            var result;
             
             
             window.html = html;
+            
             if (html.childNodes[0].childNodes[0].getAttribute('id') === 'css-override') {
-                var override = html.childNodes[0].childNodes[0].getAttribute('id');
+                result = getCssFromElement(html.childNodes[0].childNodes[0].getElementsByClassName('css-style'));
+                cssCode = result[0];
+                cssSrc = result[1];
                 
-            // style tags
-            } else if (html.getElementsByTagName('style') !== []) {
-                var styles = html.getElementsByTagName('style');
-                var cssCode = [];
-                var cssSrc = [];
-                window.styles = styles;
+                // override, so remove all css except for singulr.css
                 
-                // use both the content and src attribute
-                for (var i = 0; i < styles.length; i++) {
-                    var css = styles[i].childNodes[0].nodeValue;
-                    var src = styles[i].getAttribute('src');
-                    cssCode.push(css);
-                    cssSrc.push(src);
+                
+                // apply cssCode and cssSrc
+                for (var i = 0; i < cssCode.length; i++) {
+                    $('head').append('<link rel="stylesheet" type="text/css" href="' + cssCode[i] + '">');
                 }
+                for (var i = 0; i < cssSrc.length; i++) {
+                    $('head').append('<style>' + cssSrc[i] + '</style>');
+                }
+            // style tags
+            } else if (html.getElementsByClassName('css-style') !== []) {
+                result = getCssFromElement(html.getElementsByClassName('css-style'));
+                cssCode = result[0];
+                cssSrc = result[1];
                 
-                console.log(cssCode);
-                console.log(cssSrc);
+                // apply cssCode and cssSrc
+                for (var i = 0; i < cssCode.length; i++) {
+                    $('head').append('<link rel="stylesheet" type="text/css" href="' + cssCode[i] + '">');
+                }
+                for (var i = 0; i < cssSrc.length; i++) {
+                    $('head').append('<style>' + cssSrc[i] + '</style>');
+                }
             }
-            console.log(html);
+            
+            
+            // parse cssCode and cssSrc
+            console.log(cssCode);
+            console.log(cssSrc);
         });
     }
     
@@ -102,5 +121,24 @@
             loadPage(page);
         }
         // console.log(history);
+    }
+    
+    
+    function getCssFromElement(element) {
+        var styles = element;
+        var css;
+        var src;
+        var cssCode = [];
+        var cssSrc = [];
+        
+        // use both the content and src attribute
+        for (var i = 0; i < styles.length; i++) {
+            css = styles[i].childNodes[0].nodeValue;
+            src = styles[i].getAttribute('src');
+            cssCode.push(css);
+            cssSrc.push(src);
+        }
+        
+        return [cssCode, cssSrc];
     }
 })(jQuery);
