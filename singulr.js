@@ -65,6 +65,9 @@
         $('#' + CONTENT_ID).load(page, function(response) {
             bindEventHandlers();
             
+            // clear css
+            
+            
             // the t is there to make it valid xml
             var html = $.parseXML('<t>' + response + '</t>');
             var cssCode = [];
@@ -84,10 +87,10 @@
                 
                 // apply cssCode and cssSrc
                 for (var i = 0; i < cssCode.length; i++) {
-                    $('head').append('<link rel="stylesheet" type="text/css" href="' + cssCode[i] + '">');
+                    $('head').append('<style>' + cssCode[i] + '</style>');
                 }
                 for (var i = 0; i < cssSrc.length; i++) {
-                    $('head').append('<style>' + cssSrc[i] + '</style>');
+                    $('head').append('<link rel="stylesheet" type="text/css" href="' + cssSrc[i] + '">');
                 }
             // style tags
             } else if (html.getElementsByClassName('css-style') !== []) {
@@ -97,10 +100,10 @@
                 
                 // apply cssCode and cssSrc
                 for (var i = 0; i < cssCode.length; i++) {
-                    $('head').append('<link rel="stylesheet" type="text/css" href="' + cssCode[i] + '">');
+                    $('head').append('<style>' + cssCode[i] + '</style>');
                 }
                 for (var i = 0; i < cssSrc.length; i++) {
-                    $('head').append('<style>' + cssSrc[i] + '</style>');
+                    $('head').append('<link rel="stylesheet" type="text/css" href="' + cssSrc[i] + '">');
                 }
             }
             
@@ -141,4 +144,14 @@
         
         return [cssCode, cssSrc];
     }
+    
+    
+    // WIP
+    // http://www.jquerybyexample.net/2012/06/get-url-parameters-using-jquery.html
+    function getPage(sParam) {
+        return window.location.search.substring(1);
+    }
+    
+    window.gup = getPage;
+
 })(jQuery);
