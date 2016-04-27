@@ -1,13 +1,14 @@
 /* global jQuery */
+/* global DOMParser */
 
 
 /*
     TODO:
     - load scripts
-    - give every page its own url
+    - give every page its own url (example.com/#!about?foo=bar&more=0)
 */
 
-(function ($) {
+(function () {
     var history = [];
     var currentPage = '';
     var options = {
@@ -102,8 +103,12 @@
         ajaxLoad(Constants.CONTENT_ID, page, function(response) {
             bindEventHandlers();
             
+            // check if page is valid
+            if (!response || typeof response !== "string") {
+                throw 'Invalid page xml';
+            }
             // the t is there to make it valid xml
-            var html = $.parseXML('<t>' + response + '</t>');
+            var html = (new DOMParser()).parseFromString('<t>' + response + '</t>', 'text/xml');
             var cssCode = [];
             var cssSrc = [];
             var result;
@@ -123,35 +128,36 @@
             
             /* load css */
             
-            // style override
-            if (html.getElementById(Constants.STYLE_OVERRIDE_ID) !== null) {
-                result = getCssFromElement(html.getElementById(Constants.STYLE_OVERRIDE_ID));
-                cssCode = result[0];
-                cssSrc = result[1];
+            // // style override
+            // if (html.getElementById(Constants.STYLE_OVERRIDE_ID) !== null) {
+            //     result = getCssFromElement(html.getElementById(Constants.STYLE_OVERRIDE_ID));
+            //     cssCode = result[0];
+            //     cssSrc = result[1];
                 
-                // override, so remove all css except for singulr.css
-                var links = document.querySelectorAll('head link');
-                var styles = document.querySelectorAll('head style');
-                window.links = links;
-                for (var i = 0; i < links.length; i++) {
-                    if (links[0].getAttribute('href').match(/singulr/g) === null) {
-                        links[i].parentElement.removeChild(links[i]);
-                    }
-                }
-                for (var i = 0; i < styles.length; i++) {
-                    styles[i].parentElement.removeChild(styles[i]);
-                }
+            //     // override, so remove all css except for singulr.css
+            //     var links = document.querySelectorAll('head link');
+            //     var styles = document.querySelectorAll('head style');
+            //     window.links = links;
+            //     for (var i = 0; i < links.length; i++) {
+            //         if (links[0].getAttribute('href').match(/singulr/g) === null) {
+            //             links[i].parentElement.removeChild(links[i]);
+            //         }
+            //     }
+            //     for (var i = 0; i < styles.length; i++) {
+            //         styles[i].parentElement.removeChild(styles[i]);
+            //     }
                 
-                // apply cssCode and cssSrc
-                for (var i = 0; i < cssCode.length; i++) {
-                    document.getElementsByTagName('head')[0].appendChild(str2Element('<style>' + cssCode[i] + '</style>'));
-                }
-                for (var i = 0; i < cssSrc.length; i++) {
-                    document.getElementsByTagName('head')[0]
-                        .appendChild(str2Element('<link rel="stylesheet" type="text/css" href="' + cssSrc[i] + '">'));
-                }
-            // style tags
-            } else if (html.getElementsByClassName(Constants.STYLE_CLASS) !== []) {
+            //     // apply cssCode and cssSrc
+            //     for (var i = 0; i < cssCode.length; i++) {
+            //         document.getElementsByTagName('head')[0].appendChild(str2Element('<style>' + cssCode[i] + '</style>'));
+            //     }
+            //     for (var i = 0; i < cssSrc.length; i++) {
+            //         document.getElementsByTagName('head')[0]
+            //             .appendChild(str2Element('<link rel="stylesheet" type="text/css" href="' + cssSrc[i] + '">'));
+            //     }
+            // // style tags
+            // } else
+            if (html.getElementsByClassName(Constants.STYLE_CLASS) !== []) {
                 result = getCssFromElement(html.getElementsByClassName(Constants.STYLE_CLASS));
                 cssCode = result[0];
                 cssSrc = result[1];
@@ -206,7 +212,17 @@
     
     
     function ajaxLoad(elementId, url, callback) {
-        $('#' + elementId).load(url, callback);
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                document.getElementById(elementId).innerHTML = xhr.responseText;
+                callback(xhr.responseText);
+            }
+        };
+        
+        xhr.send();
     }
     
     
@@ -270,4 +286,4 @@
         }
         return element;
     }
-})(jQuery);
+})();
