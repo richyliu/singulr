@@ -4,13 +4,12 @@
 
 /*
     TODO:
-    - load scripts
     - give every page its own url (example.com/#!about?foo=bar&more=0)
 */
 
 (function () {
-    var history = [];
     var currentPage = '';
+    var addedContent = [];
     var options = {
         test: true
     };
@@ -20,22 +19,7 @@
         BASE_PAGE: 'base.html',
         PAGE_ID: 'page',
         CONTENT_ID: 'content',
-        STYLE_CLASS: 'css-style',
-        STYLE_OVERRIDE_ID: 'css-override',
-        SCRIPT_CLASS: 'js-style',
-        SCRIPT_OVERRIDE_ID: 'js-override',
-        TITLE_ID: 'page-title',
-        DEFAULT_CSS: [],
-        DEFAULT_JS: []
     };
-    
-    // var HOME_PAGE = 'home.html';
-    // var BASE_PAGE = 'base.html';
-    // var PAGE_ID = 'page';
-    // var CONTENT_ID = 'content';
-    // var STYLE_CLASS = 'css-style';
-    // var DEFAULT_CSS = [];
-    // var DEFAULT_JS = [];
     
     
     
@@ -50,10 +34,6 @@
         if (options.basePage !== undefined) Constants.BASE_PAGE = options.basePage;
         if (options.pageId !== undefined) Constants.PAGE_ID = options.pageId;
         if (options.contentId !== undefined) Constants.CONTENT_ID = options.contentId;
-        if (options.styleClass !== undefined) Constants.STYLE_CLASS = options.styleClass;
-        if (options.alteredHistory !== undefined) history = options.alteredHistory;
-        if (options.defaultCss !== undefined) Constants.DEFAULT_CSS = options.defaultCss;
-        if (options.defaultJs !== undefined) Constants.DEFAULT_JS = options.defaultJs;
         
         
         // load base
@@ -70,7 +50,6 @@
         for (var i = 0; i < elements.length; i++) {
             elements[i].removeEventListener('click', onclick);
         }
-        // document.getElementById('back-arrow').removeEventListener('click');
         
         
         // bind event handlers
@@ -88,18 +67,21 @@
                 loadPage(page);
                 currentPage = page;
             }
-            // push to history
-            // history.push(page);
         }
-        
-        
-        // document.getElementById('back-arrow').addEventListener('click', function () {
-        //     goBack();
-        // });
     }
     
     
     function loadPage(page) {
+        // remove previous page's js and css
+        if (addedContent !== []) {
+            window.ac = addedContent;
+            for (var i = 0; i < addedContent.length; i++) {
+                removeNode(addedContent[i]);
+            }
+            addedContent = [];
+        }
+        
+        
         ajaxLoad(Constants.CONTENT_ID, page, function(response) {
             bindEventHandlers();
             
@@ -109,105 +91,77 @@
             }
             // the t is there to make it valid xml
             var html = (new DOMParser()).parseFromString('<t>' + response + '</t>', 'text/xml');
-            var cssCode = [];
-            var cssSrc = [];
-            var result;
+            var cssCode;
+            var cssSrc;
             var jsCode = [];
             var jsSrc = [];
+            var temp;
             
-            
-            window.html = html;
             
             
             /* set title */
             
-            if (html.getElementById(Constants.TITLE_ID) !== null) {
-                document.title = html.getElementById(Constants.TITLE_ID).innerHTML;
+            var titleElement = html.getElementsByTagName('title')[0];
+            if (titleElement !== null && titleElement !== '') {
+                document.title = titleElement.innerHTML;
             }
             
             
             /* load css */
             
-            // // style override
-            // if (html.getElementById(Constants.STYLE_OVERRIDE_ID) !== null) {
-            //     result = getCssFromElement(html.getElementById(Constants.STYLE_OVERRIDE_ID));
-            //     cssCode = result[0];
-            //     cssSrc = result[1];
+            if (html.getElementsByTagName('style') !== []) {
+                var styleElements = html.getElementsByTagName('style');
                 
-            //     // override, so remove all css except for singulr.css
-            //     var links = document.querySelectorAll('head link');
-            //     var styles = document.querySelectorAll('head style');
-            //     window.links = links;
-            //     for (var i = 0; i < links.length; i++) {
-            //         if (links[0].getAttribute('href').match(/singulr/g) === null) {
-            //             links[i].parentElement.removeChild(links[i]);
-            //         }
-            //     }
-            //     for (var i = 0; i < styles.length; i++) {
-            //         styles[i].parentElement.removeChild(styles[i]);
-            //     }
-                
-            //     // apply cssCode and cssSrc
-            //     for (var i = 0; i < cssCode.length; i++) {
-            //         document.getElementsByTagName('head')[0].appendChild(str2Element('<style>' + cssCode[i] + '</style>'));
-            //     }
-            //     for (var i = 0; i < cssSrc.length; i++) {
-            //         document.getElementsByTagName('head')[0]
-            //             .appendChild(str2Element('<link rel="stylesheet" type="text/css" href="' + cssSrc[i] + '">'));
-            //     }
-            // // style tags
-            // } else
-            if (html.getElementsByClassName(Constants.STYLE_CLASS) !== []) {
-                result = getCssFromElement(html.getElementsByClassName(Constants.STYLE_CLASS));
-                cssCode = result[0];
-                cssSrc = result[1];
-                
-                // apply cssCode and cssSrc
-                for (var i = 0; i < cssCode.length; i++) {
-                    document.getElementsByTagName('head')[0].appendChild(str2Element('<style>' + cssCode[i] + '</style>'));
+                for (var i = 0; i < styleElements.length; i++) {
+                    cssCode = styleElements[i].innerHTML;
+                    if (cssCode !== '') {
+                        temp = str2Element('<style>' + cssCode + '</style>');
+                        document.getElementsByTagName('head')[0].appendChild(temp);
+                        addedContent.push(temp);
+                    }
+                    
+                    removeNode(styleElements[i]);
                 }
-                for (var i = 0; i < cssSrc.length; i++) {
-                    document.getElementsByTagName('head')[0]
-                        .appendChild(str2Element('<link rel="stylesheet" type="text/css" href="' + cssSrc[i] + '">'));
+            }
+            if (html.getElementsByTagName('link') !== []) {
+                var linkElements = html.getElementsByTagName('style');
+                
+                for (var i = 0; i < linkElements.length; i++) {
+                    cssSrc = linkElements[i].getAttribute('src');
+                    temp = str2Element('<link rel="stylesheet" type="text/css" href="' + cssSrc + '">');
+                    document.getElementsByTagName('head')[0].appendChild(temp);
+                    addedContent.push(temp);
+                    
+                    removeNode(linkElements[i]);
                 }
             }
             
+            
             /* load scripts */
             
+            if (html.getElementsByTagName('script') !== []){
+                var scriptElements = html.getElementsByTagName('script');
+                
+                for (var i = 0; i < scriptElements.length; i++) {
+                    jsSrc = scriptElements[i].getAttribute('src');
+                    jsCode = scriptElements[i].innerHTML;
+                    if (jsSrc !== null) {
+                        temp = str2Element('<script src="' + jsSrc + '"></script>');
+                        document.getElementsByTagName('body')[0].appendChild(temp);
+                        addedContent.push(temp);
+                    } else if (jsCode !== '') {
+                        temp = str2Element('<script>' + jsCode + '</script>');
+                        document.getElementsByTagName('body')[0].appendChild(temp);
+                        addedContent.push(temp);
+                    }
+                    
+                    removeNode(scriptElements[i]);
+                }
+            }
             
             
+            window.html = html;
         });
-    }
-    
-    
-    function goBack() {
-        if (history.length === 1) {
-            loadPage(Constants.HOME_PAGE);
-        } else if (history.length > 1) {
-            history.pop();
-            var page = history[history.length - 1];
-            loadPage(page);
-        }
-        // console.log(history);
-    }
-    
-    
-    function getCssFromElement(element) {
-        var styles = element;
-        var css;
-        var src;
-        var cssCode = [];
-        var cssSrc = [];
-        
-        // use both the content and src attribute
-        for (var i = 0; i < styles.length; i++) {
-            css = styles[i].childNodes[0].nodeValue;
-            src = styles[i].getAttribute('src');
-            cssCode.push(css);
-            cssSrc.push(src);
-        }
-        
-        return [cssCode, cssSrc];
     }
     
     
@@ -225,6 +179,16 @@
         xhr.send();
     }
     
+    function removeNode(node) {
+        if (node === undefined || node === null) {
+            throw 'No node provided';
+        } else if (node.parentNode === null) {
+            throw 'Node has been already removed';
+        } else {
+            node.parentNode.removeChild(node);
+        }
+    }
+    
     
     // WIP
     // http://www.jquerybyexample.net/2012/06/get-url-parameters-using-jquery.html
@@ -232,58 +196,13 @@
         return window.location.search.substring(1);
     }
     
-    window.gup = getPage;
+    // window.gup = getPage;
 
 
     // http://krasimirtsonev.com/blog/article/Revealing-the-magic-how-to-properly-convert-HTML-string-to-a-DOM-element
-    var str2Element = function(html) {
-        var wrapMap = {
-            option: [1, "<select multiple='multiple'>", "</select>"],
-            legend: [1, "<fieldset>", "</fieldset>"],
-            area: [1, "<map>", "</map>"],
-            param: [1, "<object>", "</object>"],
-            thead: [1, "<table>", "</table>"],
-            tr: [2, "<table><tbody>", "</tbody></table>"],
-            col: [2, "<table><tbody></tbody><colgroup>", "</colgroup></table>"],
-            td: [3, "<table><tbody><tr>", "</tr></tbody></table>"],
-            body: [0, "", ""],
-            _default: [1, "<div>", "</div>"]
-        };
-        wrapMap.optgroup = wrapMap.option;
-        wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead;
-        wrapMap.th = wrapMap.td;
-        var match = /<\s*\w.*?>/g.exec(html);
-        var element = document.createElement('div');
-        if (match != null) {
-            var tag = match[0].replace(/</g, '').replace(/>/g, '').split(' ')[0];
-            if (tag.toLowerCase() === 'body') {
-                var dom = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'html', null);
-                var body = document.createElement("body");
-                // keeping the attributes
-                element.innerHTML = html.replace(/<body/g, '<div').replace(/<\/body>/g, '</div>');
-                var attrs = element.firstChild.attributes;
-                body.innerHTML = html;
-                for (var i = 0; i < attrs.length; i++) {
-                    body.setAttribute(attrs[i].name, attrs[i].value);
-                }
-                return body;
-            }
-            else {
-                var map = wrapMap[tag] || wrapMap._default,
-                    element;
-                html = map[1] + html + map[2];
-                element.innerHTML = html;
-                // Descend through wrappers to the right content
-                var j = map[0] + 1;
-                while (j--) {
-                    element = element.lastChild;
-                }
-            }
-        }
-        else {
-            element.innerHTML = html;
-            element = element.lastChild;
-        }
-        return element;
-    }
+    var str2Element=function(t){var e={option:[1,"<select multiple='multiple'>","</select>"],legend:[1,"<fieldset>","</fieldset>"],area:[1,"<map>","</map>"],param:[1,"<object>","</object>"],thead:[1,"<table>","</table>"],tr:[2,"<table><tbody>",
+    "</tbody></table>"],col:[2,"<table><tbody></tbody><colgroup>","</colgroup></table>"],td:[3,"<table><tbody><tr>","</tr></tbody></table>"],body:[0,"",""],_default:[1,"<div>","</div>"]};e.optgroup=e.option,e.tbody=e.tfoot=e.colgroup=e.caption=e.thead,
+    e.th=e.td;var l=/<\s*\w.*?>/g.exec(t),a=document.createElement("div");if(null!=l){var o=l[0].replace(/</g,"").replace(/>/g,"").split(" ")[0];if("body"===o.toLowerCase()){var r=(document.implementation.createDocument("http://www.w3.org/1999/xhtml",
+    "html",null),document.createElement("body"));a.innerHTML=t.replace(/<body/g,"<div").replace(/<\/body>/g,"</div>");var d=a.firstChild.attributes;r.innerHTML=t;for(var n=0;n<d.length;n++)r.setAttribute(d[n].name,d[n].value);return r}var a,i=e[o]||
+    e._default;t=i[1]+t+i[2],a.innerHTML=t;for(var b=i[0]+1;b--;)a=a.lastChild}else a.innerHTML=t,a=a.lastChild;return a};
 })();
