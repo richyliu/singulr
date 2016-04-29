@@ -7,9 +7,10 @@
     - give every page its own url (example.com/#!about?foo=bar&more=0)
 */
 
-(function () {
+// (function () {
     var currentPage = '';
     var addedContent = [];
+    var removalQueue = [];
     var options = {
         test: true
     };
@@ -29,7 +30,7 @@
             options[option] = userOptions[option];
         }
         
-        console.log(options);
+        // console.log(options);
         if (options.homePage !== undefined) Constants.HOME_PAGE = options.homePage;
         if (options.basePage !== undefined) Constants.BASE_PAGE = options.basePage;
         if (options.pageId !== undefined) Constants.PAGE_ID = options.pageId;
@@ -37,8 +38,13 @@
         
         
         // load base
-        ajaxLoad(Constants.PAGE_ID, Constants.BASE_PAGE, function() {
-            loadPage(Constants.HOME_PAGE);
+        ajaxLoad(Constants.PAGE_ID, Constants.BASE_PAGE, function(response) {
+            if (getPage() !== null && getPage() !== currentPage) {
+                loadPage(getPage());
+            } else {
+                loadPage(Constants.HOME_PAGE);
+            }
+            return response
         });
     };
     
@@ -61,22 +67,30 @@
         function onclick() {
             event.preventDefault();
             var page = this.getAttribute('href');
-            // console.log(page);
             
             if (currentPage !== page) {
-                loadPage(page);
-                currentPage = page;
+                // loadPage(page);
+                setPage(page);
             }
         }
+        
+        // window.onhashchange = function() {
+        //     loadPage(getPage());
+        // };
+        
+        // initial check url
+        // if (getPage() !== null && getPage() !== currentPage) {
+        //     loadPage(getPage());
+        //     console.log(getPage());
+        // }
     }
     
     
     function loadPage(page) {
         // remove previous page's js and css
         if (addedContent !== []) {
-            window.ac = addedContent;
             for (var i = 0; i < addedContent.length; i++) {
-                removeNode(addedContent[i]);
+                addNodeToRemovalQueue(addedContent[i]);
             }
             addedContent = [];
         }
@@ -85,12 +99,17 @@
         ajaxLoad(Constants.CONTENT_ID, page, function(response) {
             bindEventHandlers();
             
+            currentPage = page;
+            
             // check if page is valid
             if (!response || typeof response !== "string") {
-                throw 'Invalid page xml';
+                throw 'Invalid page';
             }
-            // the t is there to make it valid xml
-            var html = (new DOMParser()).parseFromString('<t>' + response + '</t>', 'text/xml');
+            var tmp = document.implementation.createHTMLDocument();
+            tmp.body.parentElement.innerHTML = '<html>' + response + '</html>';
+            var html = tmp;
+            // console.log(html);
+            
             var cssCode;
             var cssSrc;
             var jsCode = [];
@@ -98,12 +117,20 @@
             var temp;
             
             
+            // console.log(html.getElementById('content'));
+            // /* check if it's the base page */
+            // if (html.getElementById('content') !== null) {
+            //     console.log('arsoietnase');
+            //     return response;
+            // }
+            
             
             /* set title */
             
             var titleElement = html.getElementsByTagName('title')[0];
             if (titleElement !== null && titleElement !== '') {
                 document.title = titleElement.innerHTML;
+                addNodeToRemovalQueue(titleElement);
             }
             
             
@@ -120,19 +147,19 @@
                         addedContent.push(temp);
                     }
                     
-                    removeNode(styleElements[i]);
+                    addNodeToRemovalQueue(styleElements[i]);
                 }
             }
             if (html.getElementsByTagName('link') !== []) {
-                var linkElements = html.getElementsByTagName('style');
+                var linkElements = html.getElementsByTagName('link');
                 
                 for (var i = 0; i < linkElements.length; i++) {
-                    cssSrc = linkElements[i].getAttribute('src');
+                    cssSrc = linkElements[i].getAttribute('href');
                     temp = str2Element('<link rel="stylesheet" type="text/css" href="' + cssSrc + '">');
                     document.getElementsByTagName('head')[0].appendChild(temp);
                     addedContent.push(temp);
                     
-                    removeNode(linkElements[i]);
+                    addNodeToRemovalQueue(linkElements[i]);
                 }
             }
             
@@ -155,48 +182,77 @@
                         addedContent.push(temp);
                     }
                     
-                    removeNode(scriptElements[i]);
+                    addNodeToRemovalQueue(scriptElements[i]);
                 }
             }
             
+            removeNodesInQueue();
+            
             
             window.html = html;
+            return html.documentElement.getElementsByTagName('body')[0].innerHTML;
+            // return '<h1>Contact</h1><p>Have any questions? Call us at (123) 456-7890 or write us an email at questions@temp.com.</p><p>woo hoo another paragraph</p>';
         });
     }
     
     
+    // callback needs to return the html to be added (type string)
     function ajaxLoad(elementId, url, callback) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         
         xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {
-                document.getElementById(elementId).innerHTML = xhr.responseText;
-                callback(xhr.responseText);
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                document.getElementById(elementId).innerHTML = callback(xhr.responseText);
             }
         };
         
         xhr.send();
     }
     
-    function removeNode(node) {
+    
+    // removal queue needed because removing a node while iterating through a
+    // list of nodes has bad effects
+    function addNodeToRemovalQueue(node) {
         if (node === undefined || node === null) {
             throw 'No node provided';
         } else if (node.parentNode === null) {
             throw 'Node has been already removed';
         } else {
+            removalQueue.push(node);
+        }
+    }
+    
+    function removeNodesInQueue() {
+        for (var i = 0; i < removalQueue.length; i++) {
+            var node = removalQueue[i];
             node.parentNode.removeChild(node);
         }
     }
     
     
-    // WIP
-    // http://www.jquerybyexample.net/2012/06/get-url-parameters-using-jquery.html
-    function getPage(sParam) {
-        return window.location.search.substring(1);
+    function setPage(page) {
+        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '#!' + page;
     }
     
-    // window.gup = getPage;
+    function getPage() {
+        var hash = window.location.hash;
+        var page;
+        // #!page
+        if (hash[1] === '!') {
+            // #!page?option=value
+            if (hash.search(/\?/) > 1) {
+                page = hash.slice(2, hash.search(/\?/));
+            // #!page
+            } else {
+                page = hash.slice(2);
+            }
+            return page;
+        } else {
+            return null;
+        }
+    }
+    
 
 
     // http://krasimirtsonev.com/blog/article/Revealing-the-magic-how-to-properly-convert-HTML-string-to-a-DOM-element
@@ -205,4 +261,4 @@
     e.th=e.td;var l=/<\s*\w.*?>/g.exec(t),a=document.createElement("div");if(null!=l){var o=l[0].replace(/</g,"").replace(/>/g,"").split(" ")[0];if("body"===o.toLowerCase()){var r=(document.implementation.createDocument("http://www.w3.org/1999/xhtml",
     "html",null),document.createElement("body"));a.innerHTML=t.replace(/<body/g,"<div").replace(/<\/body>/g,"</div>");var d=a.firstChild.attributes;r.innerHTML=t;for(var n=0;n<d.length;n++)r.setAttribute(d[n].name,d[n].value);return r}var a,i=e[o]||
     e._default;t=i[1]+t+i[2],a.innerHTML=t;for(var b=i[0]+1;b--;)a=a.lastChild}else a.innerHTML=t,a=a.lastChild;return a};
-})();
+// }());
