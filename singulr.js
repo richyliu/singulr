@@ -76,6 +76,7 @@
     }
     
     
+    
     function loadPage(page) {
         // remove previous page's js and css
         if (addedContent !== []) {
@@ -151,17 +152,18 @@
             
             if (html.getElementsByTagName('script') !== []){
                 var scriptElements = html.getElementsByTagName('script');
-                console.log(scriptElements);
                 
                 for (var i = 0; i < scriptElements.length; i++) {
                     jsSrc = scriptElements[i].getAttribute('src');
                     jsCode = scriptElements[i].innerHTML;
                     if (jsSrc !== null) {
-                        temp = str2Element('<script src="' + jsSrc + '"></script>');
+                        temp = document.createElement('script');
+                        temp.src = jsSrc;
                         document.getElementsByTagName('body')[0].appendChild(temp);
                         addedContent.push(temp);
                     } else if (jsCode !== '') {
-                        temp = str2Element('<script>' + jsCode + '</script>');
+                        temp = document.createElement('script');
+                        temp.innerHTML = jsCode;
                         document.getElementsByTagName('body')[0].appendChild(temp);
                         addedContent.push(temp);
                     }
@@ -175,9 +177,9 @@
             
             window.html = html;
             return html.documentElement.getElementsByTagName('body')[0].innerHTML;
-            // return '<h1>Contact</h1><p>Have any questions? Call us at (123) 456-7890 or write us an email at questions@temp.com.</p><p>woo hoo another paragraph</p>';
         });
     }
+    
     
     
     // callback needs to return the html to be added (type string)
@@ -195,6 +197,7 @@
     }
     
     
+    
     // removal queue needed because removing a node while iterating through a
     // list of nodes has bad effects
     function addNodeToRemovalQueue(node) {
@@ -207,6 +210,7 @@
         }
     }
     
+    
     function removeNodesInQueue() {
         for (var i = 0; i < removalQueue.length; i++) {
             var node = removalQueue[i];
@@ -216,13 +220,16 @@
     }
     
     
+    
     function setPage(page) {
         window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '#!' + page;
     }
     
+    
     function getPage() {
         var hash = window.location.hash;
         var page;
+        
         // #!page
         if (hash[1] === '!') {
             // #!page?option=value
