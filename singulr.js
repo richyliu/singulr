@@ -1,10 +1,6 @@
-/* global jQuery */
-/* global DOMParser */
-
-
 /*
     TODO:
-    - give every page its own url (example.com/#!about?foo=bar&more=0)
+     - fix multiple script execution bug
 */
 
 // (function () {
@@ -37,14 +33,14 @@
         if (options.contentId !== undefined) Constants.CONTENT_ID = options.contentId;
         
         
-        // load base
+        // load base on startup
         ajaxLoad(Constants.PAGE_ID, Constants.BASE_PAGE, function(response) {
             if (getPage() !== null && getPage() !== currentPage) {
                 loadPage(getPage());
             } else {
                 loadPage(Constants.HOME_PAGE);
             }
-            return response
+            return response;
         });
     };
     
@@ -78,17 +74,16 @@
     
     
     function loadPage(page) {
-        // remove previous page's js and css
-        if (addedContent !== []) {
-            for (var i = 0; i < addedContent.length; i++) {
-                addNodeToRemovalQueue(addedContent[i]);
-            }
-            removeNodesInQueue();
-            addedContent = [];
-        }
-        
-        
         ajaxLoad(Constants.CONTENT_ID, page, function(response) {
+            // remove previous page's js and css
+            if (addedContent !== []) {
+                for (var i = 0; i < addedContent.length; i++) {
+                    addNodeToRemovalQueue(addedContent[i]);
+                }
+                removeNodesInQueue();
+                addedContent = [];
+            }
+            
             bindEventHandlers();
             
             currentPage = page;
@@ -167,7 +162,6 @@
                         document.getElementsByTagName('body')[0].appendChild(temp);
                         addedContent.push(temp);
                     }
-                    
                     addNodeToRemovalQueue(scriptElements[i]);
                 }
             }
@@ -175,7 +169,8 @@
             removeNodesInQueue();
             
             
-            window.html = html;
+            // window.html = html;
+            printStackTrace();
             return html.documentElement.getElementsByTagName('body')[0].innerHTML;
         });
     }
@@ -245,6 +240,16 @@
         }
     }
     
+    
+    // http://www.codeovertones.com/2011/08/how-to-print-stack-trace-anywhere-in.html
+    function printStackTrace() {
+        var e = new Error('dummy');
+        var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '')
+            .replace(/^\s+at\s+/gm, '')
+            .replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@')
+            .split('\n');
+        console.log(stack);
+    }
 
 
     // http://krasimirtsonev.com/blog/article/Revealing-the-magic-how-to-properly-convert-HTML-string-to-a-DOM-element
