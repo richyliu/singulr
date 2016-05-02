@@ -1,17 +1,23 @@
-/* global jQuery */
+/*
+    TODO:
+     - add the element straight from the .html, instead of running it through str2Element
+     - fix multiple script execution bug
+*/
 
-
-(function ($) {
-    var history = [];
+// (function () {
+    var currentPage = '';
+    var addedContent = [];
+    var removalQueue = [];
     var options = {
         test: true
     };
     
-    var HOME_PAGE = 'home.html';
-    var BASE_PAGE = 'base.html';
-    var PAGE_ID = 'page';
-    var CONTENT_ID = 'content';
-    var STYLE_CLASS = 'css-style';
+    var Constants = {
+        HOME_PAGE: 'home.html',
+        BASE_PAGE: 'base.html',
+        PAGE_ID: 'page',
+        CONTENT_ID: 'content',
+    };
     
     
     
@@ -21,137 +27,236 @@
             options[option] = userOptions[option];
         }
         
-        console.log(options);
-        if (options.homePage !== undefined) HOME_PAGE = options.homePage;
-        if (options.basePage !== undefined) BASE_PAGE = options.basePage;
-        if (options.pageId !== undefined) PAGE_ID = options.pageId;
-        if (options.contentId !== undefined) CONTENT_ID = options.contentId;
-        if (options.styleClass !== undefined) STYLE_CLASS = options.styleClass;
-        if (options.alteredHistory !== undefined) history = options.alteredHistory;
+        // console.log(options);
+        if (options.homePage !== undefined) Constants.HOME_PAGE = options.homePage;
+        if (options.basePage !== undefined) Constants.BASE_PAGE = options.basePage;
+        if (options.pageId !== undefined) Constants.PAGE_ID = options.pageId;
+        if (options.contentId !== undefined) Constants.CONTENT_ID = options.contentId;
         
         
-        // load base
-        $('#' + PAGE_ID).load(BASE_PAGE, function() {
-            loadPage(HOME_PAGE);
+        // load base on startup
+        ajaxLoad(Constants.PAGE_ID, Constants.BASE_PAGE, function(response) {
+            if (getPage() !== null && getPage() !== currentPage) {
+                loadPage(getPage());
+            } else {
+                loadPage(Constants.HOME_PAGE);
+            }
+            return response;
         });
     };
     
     
     
     function bindEventHandlers() {
-        // unbind event handlers to make sure
-        $('a').unbind();
-        $('#back-arrow').unbind();
+        // unbind other event handlers
+        var elements = document.getElementsByTagName('a');
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].removeEventListener('click', onclick);
+        }
+        
         
         // bind event handlers
-        $('a').click(function(event) {
+        elements = document.getElementsByTagName('a');
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].addEventListener('click', onclick);
+        }
+        
+        function onclick() {
             event.preventDefault();
-            var page = $(this).attr('href');
-            // console.log(page);
+            var page = this.getAttribute('href');
             
-            loadPage(page);
-            // push to history
-            // history.push(page);
-        });
-        
-        
-        $('#back-arrow').click(function() {
-            // goBack();
-        });
+            if (currentPage !== page) {
+                loadPage(page);
+                setPage(page);
+            }
+        }
     }
     
     
+    
     function loadPage(page) {
-        $('#' + CONTENT_ID).load(page, function(response) {
+        ajaxLoad(Constants.CONTENT_ID, page, function(response) {
+            // remove previous page's js and css
+            if (addedContent !== []) {
+                for (var i = 0; i < addedContent.length; i++) {
+                    addNodeToRemovalQueue(addedContent[i]);
+                }
+                removeNodesInQueue();
+                addedContent = [];
+            }
+            
             bindEventHandlers();
             
-            // clear css
+            currentPage = page;
+            
+            // check if page is valid
+            if (!response || typeof response !== "string") {
+                throw 'Invalid page';
+            }
+            var tmp = document.implementation.createHTMLDocument();
+            tmp.body.parentElement.innerHTML = '<html>' + response + '</html>';
+            var html = tmp;
+            // console.log(html);
+            
+            var cssCode;
+            var cssSrc;
+            var jsCode = [];
+            var jsSrc = [];
+            var temp;
             
             
-            // the t is there to make it valid xml
-            var html = $.parseXML('<t>' + response + '</t>');
-            var cssCode = [];
-            var cssSrc = [];
-            var result;
+            
+            /* set title */
+            
+            var titleElement = html.getElementsByTagName('title')[0];
+            if (titleElement !== null && titleElement !== '') {
+                document.title = titleElement.innerHTML;
+            }
             
             
-            window.html = html;
+            /* load css */
             
-            if (html.childNodes[0].childNodes[0].getAttribute('id') === 'css-override') {
-                result = getCssFromElement(html.childNodes[0].childNodes[0].getElementsByClassName('css-style'));
-                cssCode = result[0];
-                cssSrc = result[1];
+            if (html.getElementsByTagName('style') !== []) {
+                var styleElements = html.getElementsByTagName('style');
                 
-                // override, so remove all css except for singulr.css
-                
-                
-                // apply cssCode and cssSrc
-                for (var i = 0; i < cssCode.length; i++) {
-                    $('head').append('<style>' + cssCode[i] + '</style>');
+                for (var i = 0; i < styleElements.length; i++) {
+                    cssCode = styleElements[i].innerHTML;
+                    if (cssCode !== '') {
+                        temp = str2Element('<style>' + cssCode + '</style>');
+                        document.getElementsByTagName('head')[0].appendChild(temp);
+                        addedContent.push(temp);
+                    }
+                    
+                    addNodeToRemovalQueue(styleElements[i]);
                 }
-                for (var i = 0; i < cssSrc.length; i++) {
-                    $('head').append('<link rel="stylesheet" type="text/css" href="' + cssSrc[i] + '">');
-                }
-            // style tags
-            } else if (html.getElementsByClassName('css-style') !== []) {
-                result = getCssFromElement(html.getElementsByClassName('css-style'));
-                cssCode = result[0];
-                cssSrc = result[1];
+            }
+            if (html.getElementsByTagName('link') !== []) {
+                var linkElements = html.getElementsByTagName('link');
                 
-                // apply cssCode and cssSrc
-                for (var i = 0; i < cssCode.length; i++) {
-                    $('head').append('<style>' + cssCode[i] + '</style>');
-                }
-                for (var i = 0; i < cssSrc.length; i++) {
-                    $('head').append('<link rel="stylesheet" type="text/css" href="' + cssSrc[i] + '">');
+                for (var i = 0; i < linkElements.length; i++) {
+                    cssSrc = linkElements[i].getAttribute('href');
+                    temp = str2Element('<link rel="stylesheet" type="text/css" href="' + cssSrc + '">');
+                    document.getElementsByTagName('head')[0].appendChild(temp);
+                    addedContent.push(temp);
+                    
+                    addNodeToRemovalQueue(linkElements[i]);
                 }
             }
             
             
-            // parse cssCode and cssSrc
-            console.log(cssCode);
-            console.log(cssSrc);
+            /* load scripts */
+            
+            if (html.getElementsByTagName('script') !== []){
+                var scriptElements = html.getElementsByTagName('script');
+                
+                for (var i = 0; i < scriptElements.length; i++) {
+                    jsSrc = scriptElements[i].getAttribute('src');
+                    jsCode = scriptElements[i].innerHTML;
+                    if (jsSrc !== null) {
+                        temp = document.createElement('script');
+                        temp.src = jsSrc;
+                        document.getElementsByTagName('body')[0].appendChild(temp);
+                        addedContent.push(temp);
+                    } else if (jsCode !== '') {
+                        temp = document.createElement('script');
+                        temp.innerHTML = jsCode;
+                        document.getElementsByTagName('body')[0].appendChild(temp);
+                        addedContent.push(temp);
+                    }
+                    addNodeToRemovalQueue(scriptElements[i]);
+                }
+            }
+            
+            removeNodesInQueue();
+            
+            
+            // window.html = html;
+            printStackTrace();
+            return html.documentElement.getElementsByTagName('body')[0].innerHTML;
         });
     }
     
     
-    function goBack() {
-        if (history.length === 1) {
-            loadPage(HOME_PAGE);
-        } else if (history.length > 1) {
-            history.pop();
-            var page = history[history.length - 1];
-            loadPage(page);
-        }
-        // console.log(history);
-    }
     
-    
-    function getCssFromElement(element) {
-        var styles = element;
-        var css;
-        var src;
-        var cssCode = [];
-        var cssSrc = [];
+    // callback needs to return the html to be added (type string)
+    function ajaxLoad(elementId, url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
         
-        // use both the content and src attribute
-        for (var i = 0; i < styles.length; i++) {
-            css = styles[i].childNodes[0].nodeValue;
-            src = styles[i].getAttribute('src');
-            cssCode.push(css);
-            cssSrc.push(src);
-        }
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                document.getElementById(elementId).innerHTML = callback(xhr.responseText);
+            }
+        };
         
-        return [cssCode, cssSrc];
+        xhr.send();
     }
     
     
-    // WIP
-    // http://www.jquerybyexample.net/2012/06/get-url-parameters-using-jquery.html
-    function getPage(sParam) {
-        return window.location.search.substring(1);
+    
+    // removal queue needed because removing a node while iterating through a
+    // list of nodes has bad effects
+    function addNodeToRemovalQueue(node) {
+        if (node === undefined || node === null) {
+            throw 'No node provided';
+        } else if (node.parentNode === null) {
+            throw 'Node has been already removed';
+        } else {
+            removalQueue.push(node);
+        }
     }
     
-    window.gup = getPage;
+    
+    function removeNodesInQueue() {
+        for (var i = 0; i < removalQueue.length; i++) {
+            var node = removalQueue[i];
+            node.parentNode.removeChild(node);
+        }
+        removalQueue = [];
+    }
+    
+    
+    
+    function setPage(page) {
+        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '#!' + page;
+    }
+    
+    
+    function getPage() {
+        var hash = window.location.hash;
+        var page;
+        
+        // #!page
+        if (hash[1] === '!') {
+            // #!page?option=value
+            if (hash.search(/\?/) > 1) {
+                page = hash.slice(2, hash.search(/\?/));
+            // #!page
+            } else {
+                page = hash.slice(2);
+            }
+            return page;
+        } else {
+            return null;
+        }
+    }
+    
+    
+    // http://www.codeovertones.com/2011/08/how-to-print-stack-trace-anywhere-in.html
+    function printStackTrace() {
+        var e = new Error();
+        var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '')
+            .replace(/^\s+at\s+/gm, '')
+            .replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@')
+            .split('\n');
+        console.error(e.stack);
+    }
 
-})(jQuery);
+
+    // http://krasimirtsonev.com/blog/article/Revealing-the-magic-how-to-properly-convert-HTML-string-to-a-DOM-element
+    var str2Element=function(t){var e={option:[1,"<select multiple='multiple'>","</select>"],legend:[1,"<fieldset>","</fieldset>"],area:[1,"<map>","</map>"],param:[1,"<object>","</object>"],thead:[1,"<table>","</table>"],tr:[2,"<table><tbody>",
+    "</tbody></table>"],col:[2,"<table><tbody></tbody><colgroup>","</colgroup></table>"],td:[3,"<table><tbody><tr>","</tr></tbody></table>"],body:[0,"",""],_default:[1,"<div>","</div>"]};e.optgroup=e.option,e.tbody=e.tfoot=e.colgroup=e.caption=e.thead,
+    e.th=e.td;var l=/<\s*\w.*?>/g.exec(t),a=document.createElement("div");if(null!=l){var o=l[0].replace(/</g,"").replace(/>/g,"").split(" ")[0];if("body"===o.toLowerCase()){var r=(document.implementation.createDocument("http://www.w3.org/1999/xhtml",
+    "html",null),document.createElement("body"));a.innerHTML=t.replace(/<body/g,"<div").replace(/<\/body>/g,"</div>");var d=a.firstChild.attributes;r.innerHTML=t;for(var n=0;n<d.length;n++)r.setAttribute(d[n].name,d[n].value);return r}var a,i=e[o]||
+    e._default;t=i[1]+t+i[2],a.innerHTML=t;for(var b=i[0]+1;b--;)a=a.lastChild}else a.innerHTML=t,a=a.lastChild;return a};
+// }());
