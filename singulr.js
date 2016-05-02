@@ -1,5 +1,6 @@
 /*
     TODO:
+     - add the element straight from the .html, instead of running it through str2Element
      - fix multiple script execution bug
 */
 
@@ -243,12 +244,12 @@
     
     // http://www.codeovertones.com/2011/08/how-to-print-stack-trace-anywhere-in.html
     function printStackTrace() {
-        var e = new Error('dummy');
+        var e = new Error();
         var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '')
             .replace(/^\s+at\s+/gm, '')
             .replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@')
             .split('\n');
-        console.log(stack);
+        console.error(e.stack);
     }
 
 
