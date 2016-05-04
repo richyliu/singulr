@@ -94,9 +94,8 @@
                 throw 'Invalid page';
             }
             var tmp = document.implementation.createHTMLDocument();
-            tmp.body.parentElement.innerHTML = '<html>' + response + '</html>';
+            tmp.body.parentElement.innerHTML = `<html>${response}</html>`;
             var html = tmp;
-            // console.log(html);
             
             var cssCode;
             var cssSrc;
@@ -122,7 +121,7 @@
                 for (var i = 0; i < styleElements.length; i++) {
                     cssCode = styleElements[i].innerHTML;
                     if (cssCode !== '') {
-                        temp = str2Element('<style>' + cssCode + '</style>');
+                        temp = str2Element(`<style>${cssCode}</style>`);
                         document.getElementsByTagName('head')[0].appendChild(temp);
                         addedContent.push(temp);
                     }
@@ -135,7 +134,7 @@
                 
                 for (var i = 0; i < linkElements.length; i++) {
                     cssSrc = linkElements[i].getAttribute('href');
-                    temp = str2Element('<link rel="stylesheet" type="text/css" href="' + cssSrc + '">');
+                    temp = str2Element(`<link rel="stylesheet" type="text/css" href="${cssSrc}">`);
                     document.getElementsByTagName('head')[0].appendChild(temp);
                     addedContent.push(temp);
                     
@@ -218,7 +217,7 @@
     
     
     function setPage(page) {
-        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '#!' + page;
+        window.location.href = `${window.location.protocol}//${window.location.host + window.location.pathname}#!${page}`;
     }
     
     
