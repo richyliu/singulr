@@ -18,11 +18,37 @@
         <!-- http://www.flaticon.com/free-icon/left-arrow_118739 -->
         <img id="singulr-back-arrow" src="img/back.svg" alt="Back" onclick="history.back()" style="position: fixed; width: 20px; height: 20px; top: 50%; left: 10px;"></img>
         
+        
+        <!-- Add to home screen -->
+        <div id="add-to-home-screen">
+            <div id="top" onclick="document.getElementById('add-to-home-screen').classList.toggle('open')">
+                Download the Singulr mobile app for free.
+            </div>
+            <p>
+                Simply tap the <img src="img/add-to-home-screen.png"> button below, and choose "Add to Home Screen".
+            </p>
+            <p>
+                The mobile app will then be installed as an icon on your home screen.
+            </p>
+            <div>
+                <!-- http://www.flaticon.com/free-icon/download-arrow_109611 -->
+                <img id="arrow" src="img/down-arrow.svg"></img>
+            </div>
+        </div>
+        
+        
         <!-- Required -->
         <script src="singulr.js"></script>
         
         <script>
             Singulr.init();
+        </script>
+        
+        <!-- Add to home screen -->
+        <script>
+            if (navigator.userAgent.search(/iPhone/) === -1) {
+                document.getElementById('add-to-home-screen').style.display = 'none';
+            }
         </script>
     </body>
 </html>
