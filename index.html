@@ -4,19 +4,25 @@
         <title>Singulr Test</title>
         
         <link rel="stylesheet" href="css/stylesheet.css" type="text/css">
+        
+        <!-- Auto redirect to https -->
+        <script>
+            var l = window.location;
+            if (l.protocol !== "https:") l.href = 'https:' + l.href.substring(l.protocol.length);
+        </script>
     </head>
     
     <body>
         <div id="page"></div>
         
-        <!--http://www.flaticon.com/free-icon/left-arrow_118739-->
-        <!--<img id="back-arrow" src="back.svg" alt="Back"></img>-->
+        <!-- http://www.flaticon.com/free-icon/left-arrow_118739 -->
+        <img id="singulr-back-arrow" src="img/back.svg" alt="Back" onclick="history.back()" style="position: fixed; width: 20px; height: 20px; top: 50%; left: 10px;"></img>
         
         <!-- Required -->
         <script src="singulr.js"></script>
         
         <script>
-            Singulr();
+            Singulr.init();
         </script>
     </body>
 </html>

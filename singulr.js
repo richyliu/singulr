@@ -1,5 +1,7 @@
 /*
     TODO:
+     - add swipe to go back
+     - add add to home screen
      
      - dynamically change favicon
 */
@@ -21,29 +23,34 @@
     
     
     
-    window.Singulr = function (userOptions) {
-        // Add user options
-        for (var option in userOptions) {
-            options[option] = userOptions[option];
-        }
-        
-        // console.log(options);
-        if (options.homePage !== undefined) Constants.HOME_PAGE = options.homePage;
-        if (options.basePage !== undefined) Constants.BASE_PAGE = options.basePage;
-        if (options.pageId !== undefined) Constants.PAGE_ID = options.pageId;
-        if (options.contentId !== undefined) Constants.CONTENT_ID = options.contentId;
-        
-        
-        // load base on startup
-        ajaxLoad(Constants.PAGE_ID, Constants.BASE_PAGE, function(response) {
-            if (getPage() !== null && getPage() !== currentPage) {
-                loadPage(getPage());
-            } else {
-                loadPage(Constants.HOME_PAGE);
+    window.Singulr = {
+        init: function (userOptions) {
+            // Add user options
+            for (var option in userOptions) {
+                options[option] = userOptions[option];
             }
-            return response;
-        });
+            
+            // console.log(options);
+            if (options.homePage !== undefined) Constants.HOME_PAGE = options.homePage;
+            if (options.basePage !== undefined) Constants.BASE_PAGE = options.basePage;
+            if (options.pageId !== undefined) Constants.PAGE_ID = options.pageId;
+            if (options.contentId !== undefined) Constants.CONTENT_ID = options.contentId;
+            
+            
+            // load base on startup
+            ajaxLoad(Constants.PAGE_ID, Constants.BASE_PAGE, function(response) {
+                if (getPage() !== null && getPage() !== currentPage) {
+                    loadPage(getPage());
+                } else {
+                    loadPage(Constants.HOME_PAGE);
+                }
+                return response;
+            });
+        },
+        getPage: getPage
     };
+    
+    
     
     
     
@@ -67,16 +74,23 @@
             
             if (currentPage !== page) {
                 loadPage(page);
-                setPage(page);
-                currentPage = page;
-                
             }
         }
+        
+        // incase user uses the browser back button
+        window.onhashchange = function () {
+            var page = getPage();
+            
+            loadPage(page);
+        };
     }
     
     
     
     function loadPage(page) {
+        setPage(page);
+        currentPage = page;
+        
         ajaxLoad(Constants.CONTENT_ID, page, function(response) {
             // remove previous page's js and css
             if (addedContent !== []) {
@@ -242,23 +256,4 @@
             return null;
         }
     }
-    
-    
-    // http://www.codeovertones.com/2011/08/how-to-print-stack-trace-anywhere-in.html
-    // function printStackTrace() {
-    //     var e = new Error();
-    //     var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '')
-    //         .replace(/^\s+at\s+/gm, '')
-    //         .replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@')
-    //         .split('\n');
-    //     console.error(e.stack);
-    // }
-
-
-    // http://krasimirtsonev.com/blog/article/Revealing-the-magic-how-to-properly-convert-HTML-string-to-a-DOM-element
-    // var str2Element=function(t){var e={option:[1,"<select multiple='multiple'>","</select>"],legend:[1,"<fieldset>","</fieldset>"],area:[1,"<map>","</map>"],param:[1,"<object>","</object>"],thead:[1,"<table>","</table>"],tr:[2,"<table><tbody>",
-    // "</tbody></table>"],col:[2,"<table><tbody></tbody><colgroup>","</colgroup></table>"],td:[3,"<table><tbody><tr>","</tr></tbody></table>"],body:[0,"",""],_default:[1,"<div>","</div>"]};e.optgroup=e.option,e.tbody=e.tfoot=e.colgroup=e.caption=e.thead,
-    // e.th=e.td;var l=/<\s*\w.*?>/g.exec(t),a=document.createElement("div");if(null!=l){var o=l[0].replace(/</g,"").replace(/>/g,"").split(" ")[0];if("body"===o.toLowerCase()){var r=(document.implementation.createDocument("http://www.w3.org/1999/xhtml",
-    // "html",null),document.createElement("body"));a.innerHTML=t.replace(/<body/g,"<div").replace(/<\/body>/g,"</div>");var d=a.firstChild.attributes;r.innerHTML=t;for(var n=0;n<d.length;n++)r.setAttribute(d[n].name,d[n].value);return r}var a,i=e[o]||
-    // e._default;t=i[1]+t+i[2],a.innerHTML=t;for(var b=i[0]+1;b--;)a=a.lastChild}else a.innerHTML=t,a=a.lastChild;return a};
 // }());
