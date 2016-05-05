@@ -6,10 +6,7 @@
         <link rel="stylesheet" href="css/stylesheet.css" type="text/css">
         
         <!-- Auto redirect to https -->
-        <script>
-            var l = window.location;
-            if (l.protocol !== "https:") l.href = 'https:' + l.href.substring(l.protocol.length);
-        </script>
+        <script>var a=window.location;"https:"!==a.protocol&&(a.href="https:"+a.href.substring(a.protocol.length));</script>
     </head>
     
     <body>
@@ -35,6 +32,11 @@
                 <img id="arrow" src="img/down-arrow.svg"></img>
             </div>
         </div>
+        <script>
+            if (navigator.userAgent.search(/iPhone/) > -1) {
+                document.getElementById('add-to-home-screen').style.display = 'block';
+            }
+        </script>
         
         
         <!-- Required -->
@@ -42,13 +44,6 @@
         
         <script>
             Singulr.init();
-        </script>
-        
-        <!-- Add to home screen -->
-        <script>
-            if (navigator.userAgent.search(/iPhone/) > -1) {
-                document.getElementById('add-to-home-screen').style.display = 'block';
-            }
         </script>
     </body>
 </html>

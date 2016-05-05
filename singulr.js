@@ -1,8 +1,8 @@
 /*
     TODO:
-     - 
-    
      - add swipe to go back
+     
+     
      - dynamically change favicon
 */
 
@@ -22,6 +22,9 @@
     };
     
     
+    function out(a) { console.log(a) }
+    
+    
     
     window.Singulr = {
         init: function (userOptions) {
@@ -30,7 +33,7 @@
                 options[option] = userOptions[option];
             }
             
-            // console.log(options);
+            // out(options);
             if (options.homePage !== undefined) Constants.HOME_PAGE = options.homePage;
             if (options.basePage !== undefined) Constants.BASE_PAGE = options.basePage;
             if (options.pageId !== undefined) Constants.PAGE_ID = options.pageId;
@@ -52,22 +55,21 @@
     
     
     
-    
-    
     function bindEventHandlers() {
         // unbind other event handlers
         var elements = document.getElementsByTagName('a');
         for (var i = 0; i < elements.length; i++) {
             elements[i].removeEventListener('click', onclick);
         }
-        window.removeEventListener('onhashchange', onhashchange);
+        window.removeEventListener('hashchange', onhashchange);
         
         // bind event handlers
         elements = document.getElementsByTagName('a');
         for (var i = 0; i < elements.length; i++) {
             elements[i].addEventListener('click', onclick);
         }
-        window.addEventListener('onhashchange', onhashchange);
+        window.addEventListener('hashchange', onhashchange);
+        out(window.onhashchange);
         
         
         function onclick() {
@@ -81,11 +83,11 @@
         
         // just in case user uses the browser back button
         function onhashchange () {
-            // console.log('hash change!');
+            // out('hash change!');
             var page = getPage();
             
             loadPage(page);
-        };
+        }
     }
     
     
