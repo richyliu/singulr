@@ -1,8 +1,8 @@
 /*
     TODO:
+     - 
+    
      - add swipe to go back
-     - add add to home screen
-     
      - dynamically change favicon
 */
 
@@ -60,13 +60,15 @@
         for (var i = 0; i < elements.length; i++) {
             elements[i].removeEventListener('click', onclick);
         }
-        
+        window.removeEventListener('onhashchange', onhashchange);
         
         // bind event handlers
         elements = document.getElementsByTagName('a');
         for (var i = 0; i < elements.length; i++) {
             elements[i].addEventListener('click', onclick);
         }
+        window.addEventListener('onhashchange', onhashchange);
+        
         
         function onclick() {
             event.preventDefault();
@@ -77,8 +79,9 @@
             }
         }
         
-        // incase user uses the browser back button
-        window.onhashchange = function () {
+        // just in case user uses the browser back button
+        function onhashchange () {
+            // console.log('hash change!');
             var page = getPage();
             
             loadPage(page);

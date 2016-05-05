@@ -20,7 +20,7 @@
         
         
         <!-- Add to home screen -->
-        <div id="add-to-home-screen">
+        <div id="add-to-home-screen" style="display: none">
             <div id="top" onclick="document.getElementById('add-to-home-screen').classList.toggle('open')">
                 Download the Singulr mobile app for free.
             </div>
@@ -46,8 +46,8 @@
         
         <!-- Add to home screen -->
         <script>
-            if (navigator.userAgent.search(/iPhone/) === -1) {
-                document.getElementById('add-to-home-screen').style.display = 'none';
+            if (navigator.userAgent.search(/iPhone/) > -1) {
+                document.getElementById('add-to-home-screen').style.display = 'block';
             }
         </script>
     </body>
