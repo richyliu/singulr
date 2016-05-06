@@ -110,7 +110,6 @@
         
         function touchmove(e) {
             // prevent default safari go back
-            e.preventDefault();
             var xRatio = e.changedTouches[0].clientX / window.innerWidth;
             out(xRatio);
             if (listenToTouch) {
@@ -157,7 +156,7 @@
                     moveSwipeToContent(0);
                     moveContentContainer(0);
                 }
-            }, 500);
+            }, 300);
         }
         
         

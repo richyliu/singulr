@@ -3,6 +3,8 @@
     <head>
         <title>Singulr Test</title>
         
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+        
         <link rel="stylesheet" href="css/stylesheet.css" type="text/css">
         
         <!-- Auto redirect to https -->
@@ -10,35 +12,31 @@
     </head>
     
     <body>
-        <div id="page"></div>
-        
-        <!-- http://www.flaticon.com/free-icon/left-arrow_118739 -->
-        <img id="singulr-back-arrow" src="img/back.svg" alt="Back" onclick="history.back()" style="position: fixed; width: 20px; height: 20px; top: 50%; left: 10px;"></img>
+        <div id="page-wrapper">
+            <div id="page"></div>
+        </div>
         
         <div id="swipe-to"></div>
         
         
         <!-- Add to home screen -->
-        <div id="add-to-home-screen" style="display: none">
-            <div id="top" onclick="document.getElementById('add-to-home-screen').classList.toggle('open')">
-                Download the Singulr mobile app for free.
-            </div>
-            <p>
-                Simply tap the <img src="img/add-to-home-screen.png"> button below, and choose "Add to Home Screen".
-            </p>
-            <p>
-                The mobile app will then be installed as an icon on your home screen.
-            </p>
-            <div>
+        <!--<div id="add-to-home-screen" style="display: none" ontouchstart="this.classList.toggle('open')">-->
+        <!--    <div id="top">-->
+        <!--        Download the Singulr mobile app for free.-->
+        <!--    </div>-->
+        <!--    <p>-->
+        <!--        Simply tap the <img src="img/add-to-home-screen.png"> button below, and choose "Add to Home Screen".-->
+        <!--    </p>-->
+        <!--    <p>-->
+        <!--        The mobile app will then be installed as an icon on your home screen.-->
+        <!--    </p>-->
+        <!--    <div>-->
                 <!-- http://www.flaticon.com/free-icon/download-arrow_109611 -->
-                <img id="arrow" src="img/down-arrow.svg"></img>
-            </div>
-        </div>
-        <script>
-            if (navigator.userAgent.search(/iPhone/) > -1) {
-                document.getElementById('add-to-home-screen').style.display = 'block';
-            }
-        </script>
+        <!--        <img id="arrow" src="img/down-arrow.svg"></img>-->
+        <!--    </div>-->
+        <!--</div>-->
+        <!-- If iPhone display add to home screen -->
+        <script>-1<navigator.userAgent.search(/iPhone/)&&(document.getElementById("add-to-home-screen").style.display="block")</script>
         
         
         <!-- Required -->

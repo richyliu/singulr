@@ -24,40 +24,42 @@ a:focus {
 
 
 
+.transition {
+    -webkit-transition: 0.3s ease-in-out;
+    -moz-transition: 0.3s ease-in-out;
+    -o-transition: 0.3s ease-in-out;
+    transition: 0.3s ease-in-out;
+}
+
+
 #swipe-to {
     position: fixed;
     height: 100vh;
     width: 100vw;
     left: -100vw;
     top: 0px;
-    background-color: blue;
+    background-color: transparent;
 }
-
-.transition {
-    -webkit-transition: 0.5s ease-in-out;
-    -moz-transition: 0.5s ease-in-out;
-    -o-transition: 0.5s ease-in-out;
-    transition: 0.5s ease-in-out;
-}
-
 #swipe-to.moveback {
     left: -100vw !important;
 }
-
 #swipe-to.moveforward {
     left: 0 !important;
 }
 
 
-#page {
+#page-wrapper {
     overflow: hidden;
-    width: 100%;
 }
-
+#page {
+    width: 100vw;
+    height: 100vh;
+    box-shadow: -10px 0px 20px -13px #aaaaaa;
+    padding-left: 5px;
+}
 #page.moveback {
     margin-left: 0 !important;
 }
-
 #page.moveforward {
     margin-left: 100vw !important;
 }
