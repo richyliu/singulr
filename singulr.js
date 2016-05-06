@@ -2,7 +2,8 @@
     TODO:
      - add swipe to go back
      
-     
+     - compress code using yui compressor
+     - or use closure (http://closure-compiler.appspot.com/home)
      - dynamically change favicon
 */
 
