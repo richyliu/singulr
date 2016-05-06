@@ -20,6 +20,7 @@
         BASE_PAGE: 'base.html',
         PAGE_ID: 'page',
         CONTENT_ID: 'content',
+        SWIPE_TO_ID: 'swipe-to'
     };
     
     
@@ -63,6 +64,9 @@
             elements[i].removeEventListener('click', onclick);
         }
         window.removeEventListener('hashchange', onhashchange);
+        window.removeEventListener('touchstart', touchstart);
+        window.removeEventListener('touchmove', touchmove);
+        window.removeEventListener('touchend', touchend);
         
         // bind event handlers
         elements = document.getElementsByTagName('a');
@@ -70,7 +74,9 @@
             elements[i].addEventListener('click', onclick);
         }
         window.addEventListener('hashchange', onhashchange);
-        out(window.onhashchange);
+        window.addEventListener('touchstart', touchstart);
+        window.addEventListener('touchmove', touchmove);
+        window.addEventListener('touchend', touchend);
         
         
         function onclick() {
@@ -83,11 +89,86 @@
         }
         
         // just in case user uses the browser back button
-        function onhashchange () {
-            // out('hash change!');
+        function onhashchange() {
             var page = getPage();
             
             loadPage(page);
+        }
+        
+        
+        
+        var listenToTouch = false;
+        
+        
+        function touchstart(e) {
+            var xRatio = e.changedTouches[0].clientX / window.innerWidth;
+            // 10%
+            listenToTouch = xRatio < 0.10;
+            
+            touchmove(e);
+        }
+        
+        function touchmove(e) {
+            // prevent default safari go back
+            e.preventDefault();
+            var xRatio = e.changedTouches[0].clientX / window.innerWidth;
+            out(xRatio);
+            if (listenToTouch) {
+                moveSwipeToContent(xRatio * 100);
+                moveContentContainer(xRatio * 100);
+            }
+        }
+        
+        function touchend(e) {
+            if (!listenToTouch) return;
+            // reset
+            listenToTouch = false;
+            var xRatio = e.changedTouches[0].clientX / window.innerWidth;
+            
+            out('touch done!');
+            
+            // half way
+            if (xRatio > 0.5) {
+                out('new page loaded!');
+                document.getElementById(Constants.SWIPE_TO_ID).classList.add('moveforward');
+                document.getElementById(Constants.PAGE_ID).classList.add('moveforward');
+            } else {
+                out('no new page :(');
+                document.getElementById(Constants.SWIPE_TO_ID).classList.add('moveback');
+                document.getElementById(Constants.PAGE_ID).classList.add('moveback');
+            }
+            
+            // reset swipe-to
+            document.getElementById(Constants.SWIPE_TO_ID).classList.add('transition');
+            document.getElementById(Constants.PAGE_ID).classList.add('transition');
+            
+            setTimeout(function() {
+                document.getElementById(Constants.SWIPE_TO_ID).classList.remove('transition');
+                document.getElementById(Constants.SWIPE_TO_ID).classList.remove('moveback');
+                document.getElementById(Constants.SWIPE_TO_ID).classList.remove('moveforward');
+                document.getElementById(Constants.PAGE_ID).classList.remove('transition');
+                document.getElementById(Constants.PAGE_ID).classList.remove('moveback');
+                document.getElementById(Constants.PAGE_ID).classList.remove('moveforward');
+                
+                if (xRatio > 0.5) {
+                    moveSwipeToContent(100);
+                    moveContentContainer(100);
+                } else {
+                    moveSwipeToContent(0);
+                    moveContentContainer(0);
+                }
+            }, 500);
+        }
+        
+        
+        // offset a number from 0 to 100
+        // 0 ======= 100
+        function moveSwipeToContent(offset) {
+            offset = 100 - offset;
+            document.getElementById(Constants.SWIPE_TO_ID).style.left = `-${offset}vw`;
+        }
+        function moveContentContainer(offset) {
+            document.getElementById(Constants.PAGE_ID).style.marginLeft = `${offset}vw`;
         }
     }
     

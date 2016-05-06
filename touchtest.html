@@ -13,11 +13,11 @@
                 background-color: blue;
             }
             
-            #swipe-to.transition {
-                -webkit-transition: 1s ease-in-out;
-                -moz-transition: 1s ease-in-out;
-                -o-transition: 1s ease-in-out;
-                transition: 1s ease-in-out;
+            .transition {
+                -webkit-transition: 0.5s ease-in-out;
+                -moz-transition: 0.5s ease-in-out;
+                -o-transition: 0.5s ease-in-out;
+                transition: 0.5s ease-in-out;
             }
  
             #swipe-to.moveback {
@@ -26,6 +26,20 @@
             
             #swipe-to.moveforward {
                 left: 0 !important;
+            }
+            
+            
+            #content {
+                overflow: hidden;
+                width: 100%;
+            }
+            
+            #content.moveback {
+                margin-left: 0 !important;
+            }
+            
+            #content.moveforward {
+                margin-left: 100vw !important;
             }
         </style>
     </head>
@@ -64,6 +78,9 @@
         <script>
             function out(a) { console.log(a); }
             
+            var SWIPE_TO_ID = 'swipe-to';
+            var CONTENT_ID = 'content';
+            
             
             var listenToTouch = false;
             window.addEventListener('touchstart', touchstart);
@@ -80,14 +97,18 @@
             }
             
             function touchmove(e) {
+                // prevent default safari go back
+                e.preventDefault();
                 var xRatio = e.changedTouches[0].clientX / window.innerWidth;
                 out(xRatio);
                 if (listenToTouch) {
-                    moveSwipeToContainer(xRatio * 100);   
+                    moveSwipeToContent(xRatio * 100);
+                    moveContentContainer(xRatio * 100);
                 }
             }
             
             function touchend(e) {
+                if (!listenToTouch) return;
                 // reset
                 listenToTouch = false;
                 var xRatio = e.changedTouches[0].clientX / window.innerWidth;
@@ -98,33 +119,44 @@
                 if (xRatio > 0.5) {
                     out('new page loaded!');
                     document.getElementById('swipe-to').classList.add('moveforward');
+                    document.getElementById('content').classList.add('moveforward');
                 } else {
                     out('no new page :(');
                     document.getElementById('swipe-to').classList.add('moveback');
+                    document.getElementById('content').classList.add('moveback');
                 }
                 
                 // reset swipe-to
                 document.getElementById('swipe-to').classList.add('transition');
+                document.getElementById('content').classList.add('transition');
                 
                 setTimeout(function() {
                     document.getElementById('swipe-to').classList.remove('transition');
                     document.getElementById('swipe-to').classList.remove('moveback');
                     document.getElementById('swipe-to').classList.remove('moveforward');
+                    document.getElementById('content').classList.remove('transition');
+                    document.getElementById('content').classList.remove('moveback');
+                    document.getElementById('content').classList.remove('moveforward');
                     
                     if (xRatio > 0.5) {
-                        moveSwipeToContainer(100);
+                        moveSwipeToContent(100);
+                        moveContentContainer(100);
                     } else {
-                        moveSwipeToContainer(0);
+                        moveSwipeToContent(0);
+                        moveContentContainer(0);
                     }
-                }, 1000);
+                }, 500);
             }
             
             
             // offset a number from 0 to 100
             // 0 ======= 100
-            function moveSwipeToContainer(offset) {
+            function moveSwipeToContent(offset) {
                 offset = 100 - offset;
                 document.getElementById('swipe-to').style.left = `-${offset}vw`;
+            }
+            function moveContentContainer(offset) {
+                document.getElementById('content').style.marginLeft = `${offset}vw`;
             }
         </script>
     </body>
