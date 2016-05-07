@@ -38,31 +38,34 @@ a:focus {
     width: 100vw;
     left: -100vw;
     top: 0px;
-    background-color: transparent;
+    background-color: white;
 }
-#swipe-to.moveback {
-    left: -100vw !important;
-}
-#swipe-to.moveforward {
-    left: 0 !important;
-}
+/*#swipe-to.moveback {*/
+/*    left: -100vw !important;*/
+/*    transform: translate('-100vw', 0);*/
+/*}*/
+/*#swipe-to.moveforward {*/
+/*    left: 0 !important;*/
+/*    transform: translate(0, 0);*/
+/*}*/
 
 
-#page-wrapper {
-    overflow: hidden;
-}
-#page {
-    width: 100vw;
-    height: 100vh;
+#swipe-from {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    display: none;
+    background-color: white;
     box-shadow: -10px 0px 20px -13px #aaaaaa;
-    padding-left: 5px;
 }
-#page.moveback {
-    margin-left: 0 !important;
-}
-#page.moveforward {
-    margin-left: 100vw !important;
-}
+/*#swipe-from.moveback {*/
+/*    margin-left: 0 !important;*/
+/*    transform: translate(0, 0);*/
+/*}*/
+/*#swipe-from.moveforward {*/
+/*    margin-left: 100vw !important;*/
+/*    transform: translate('100vw', 0);*/
+/*}*/
 
 
 
