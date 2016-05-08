@@ -61,13 +61,11 @@
     
     
     function bindEventHandlers() {
-        out('bind event handlers');
         // unbind other event handlers
         var elements = document.getElementsByTagName('a');
         for (var i = 0; i < elements.length; i++) {
             elements[i].removeEventListener('click', onclick);
         }
-        // window.removeEventListener('hashchange', onhashchange);
         
         // bind event handlers
         elements = document.getElementsByTagName('a');
