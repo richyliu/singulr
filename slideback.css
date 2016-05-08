@@ -1,0 +1,24 @@
+.transition {
+    -webkit-transition: 0.3s ease-in-out;
+    -moz-transition: 0.3s ease-in-out;
+    -o-transition: 0.3s ease-in-out;
+    transition: 0.3s ease-in-out;
+}
+
+#swipe-to {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    left: -100vw;
+    top: 0px;
+    background-color: white;
+}
+
+#swipe-from {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    display: none;
+    background-color: white;
+    box-shadow: -10px 0px 20px -13px #aaaaaa;
+}

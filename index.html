@@ -7,6 +7,9 @@
         
         <link rel="stylesheet" href="css/stylesheet.css" type="text/css">
         
+        <!-- Slideback -->
+        <link rel="stylesheet" href="slideback.css" type="text/css">
+        
         <!-- Auto redirect to https -->
         <script>var a=window.location;"https:"!==a.protocol&&(a.href="https:"+a.href.substring(a.protocol.length));</script>
     </head>
@@ -15,9 +18,6 @@
         <div id="page"></div>
         
         <div id="swipe-to"></div>
-        <div id="swipe-from">
-            <img src="https://placehold.it/320x568"></img>
-        </div>
         
         
         <!-- Add to home screen -->
@@ -40,12 +40,15 @@
         <script>-1<navigator.userAgent.search(/iPhone/)&&(document.getElementById("add-to-home-screen").style.display="block")</script>
         
         
-        <!-- Required -->
+        <!-- Singulr -->
         <script src="singulr.js"></script>
-        <script src="https://rawgit.com/niklasvh/html2canvas/master/dist/html2canvas.min.js"></script>
+        
+         <!--Slideback -->
+        <script src="slideback.js"></script>
         
         <script>
             Singulr.init();
+            Slideback();
         </script>
     </body>
 </html>

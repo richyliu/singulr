@@ -1,11 +1,12 @@
+/*! Singulr v0.1.0 | (c) Richard Liu | MIT License */
 /*
     TODO:
-     - add swipe to go back
      
      - compress code using yui compressor
      - or use closure (http://closure-compiler.appspot.com/home)
      - dynamically change favicon
 */
+
 
 // (function () {
     var currentPage = '';
@@ -53,31 +54,29 @@
                 return response;
             });
         },
-        getPage: getPage
+        getPage: getPage,
+        setPage: setPage
     };
     
     
     
     function bindEventHandlers() {
+        out('bind event handlers');
         // unbind other event handlers
         var elements = document.getElementsByTagName('a');
         for (var i = 0; i < elements.length; i++) {
             elements[i].removeEventListener('click', onclick);
         }
-        window.removeEventListener('hashchange', onhashchange);
-        window.removeEventListener('touchstart', touchstart);
-        window.removeEventListener('touchmove', touchmove);
-        window.removeEventListener('touchend', touchend);
+        // window.removeEventListener('hashchange', onhashchange);
         
         // bind event handlers
         elements = document.getElementsByTagName('a');
         for (var i = 0; i < elements.length; i++) {
             elements[i].addEventListener('click', onclick);
         }
-        window.addEventListener('hashchange', onhashchange);
-        window.addEventListener('touchstart', touchstart);
-        window.addEventListener('touchmove', touchmove);
-        window.addEventListener('touchend', touchend);
+        if (window.onhashchange === null) {
+            window.onhashchange = onhashchange;
+        }
         
         
         function onclick() {
@@ -89,89 +88,11 @@
             }
         }
         
-        // just in case user uses the browser back button
         function onhashchange() {
             var page = getPage();
+            out('hash changed: ' + page);
             
             loadPage(page);
-        }
-        
-        
-        
-        /* Slide to go back */
-        
-        var listenToTouch = false;
-        
-        function touchstart(e) {
-            var xRatio = e.changedTouches[0].clientX / window.innerWidth;
-            // 10%
-            listenToTouch = xRatio < 0.10;
-            
-            if (listenToTouch) {
-                // reset
-                // document.getElementById(Constants.SWIPE_FROM_ID).style.display = 'block';
-            }
-            
-            touchmove(e);
-        }
-        
-        function touchmove(e) {
-            // prevent default safari go back
-            var xRatio = e.changedTouches[0].clientX / window.innerWidth;
-            if (listenToTouch) {
-                moveSwipeToContent(xRatio * 100);
-                moveContentContainer(xRatio * 100);
-            }
-        }
-        
-        function touchend(e) {
-            if (!listenToTouch) return;
-            // reset
-            listenToTouch = false;
-            var xRatio = e.changedTouches[0].clientX / window.innerWidth;
-            
-            document.getElementById(Constants.SWIPE_TO_ID).classList.add('transition');
-            document.getElementById(Constants.SWIPE_FROM_ID).classList.add('transition');
-            
-            out(xRatio);
-            // half way
-            if (xRatio > 0.5) {
-                // load new page
-                // history.back();
-                out('going back');
-                
-                moveSwipeToContent(100);
-                moveContentContainer(100);
-            } else {
-                moveSwipeToContent(0);
-                moveContentContainer(0);
-            }
-            
-            // reset swipe-to
-            setTimeout(function() {
-                document.getElementById(Constants.SWIPE_TO_ID).classList.remove('transition');
-                document.getElementById(Constants.SWIPE_FROM_ID).classList.remove('transition');
-                
-                // if (xRatio > 0.5) {
-                //     moveSwipeToContent(100);
-                //     moveContentContainer(100);
-                // } else {
-                //     moveSwipeToContent(0);
-                //     moveContentContainer(0);
-                // }
-                
-                // document.getElementById(Constants.SWIPE_FROM_ID).style.display = 'none';
-            }, 300);
-        }
-        
-        
-        // offset a number from 0 to 100
-        // 0 ======= 100
-        function moveSwipeToContent(offset) {
-            document.getElementById(Constants.SWIPE_TO_ID).style.transform = `translate(${offset}vw, 0px)`;
-        }
-        function moveContentContainer(offset) {
-            document.getElementById(Constants.SWIPE_FROM_ID).style.transform = `translate(${offset}vw, 0px)`;
         }
     }
     
