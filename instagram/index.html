@@ -13,6 +13,17 @@
 
 
     <link rel="stylesheet" href="instagram.css" type="text/css" >
+    
+    <style>
+        ._bfc7q {
+            bottom: 0px;
+            top: inherit;
+        }
+        
+        ._j4mb5, ._onabe {
+            height: 0px;
+        }
+    </style>
 </head>
 
 
@@ -27,23 +38,23 @@
                                 <header class="_s6yvg">
                                     <a class="_5lote _pss4f" href="/zhendawho/">
 <!-- Profile photo -->
-                                        <img class="_a012k" src="https://placehold.it/28x28">
+                                        <img id="profile-photo" class="_a012k" src="https://placehold.it/28x28">
                                     </a>
                                     <div class="_f95g7">
 <!-- Username -->
-                                        <a class="_4zhc5 _ook48" title="zhendawho" href="/zhendawho/">a name</a>
+                                        <a id="username" class="_4zhc5 _ook48" title="zhendawho" href="/zhendawho/">a name</a>
                                     </div>
                                     <a class="_ljyfo" href="/p/BFM94EgzW2p8czmOvH8L5RfXeYiaqaN_69xFws0/">
 <!-- Post time -->
-                                        <time class="_379kp" datetime="2016-05-09T22:04:47.000Z" title="May 9, 2016">31m</time>
+                                        <time id="post-time" class="_379kp" datetime="2016-05-09T22:04:47.000Z" title="May 9, 2016">31m</time>
                                     </a>
                                 </header>
                                 <div>
                                     <div class="_ikcuh _e0mru _1ysqy">
                                         <div class="_22yr2 _rudo5">
                                             <div style="padding-bottom:100%;" class="_jjzlb">
-<!-- Main photo -->
-                                                <img class="_icyx7" id="pImage_0" src="https://placehold.it/320x320">
+<!-- Post photo -->
+                                                <img id="post-photo" class="_icyx7" id="pImage_0" src="https://placehold.it/320x320">
                                             </div>
                                             <noscript></noscript>
                                             <div class="_ovg3g"></div>
@@ -74,13 +85,13 @@
                                             <span class="_tf9x3">
                                                 <span></span>
 <!-- Number of likes -->
-                                                <span>10000000000</span>
+                                                <span id="number-likes">10000000000</span>
                                                 <span> likes</span>
                                             </span>
                                         </div>
                                     </section>
 <!-- Comments -->
-                                    <ul class="_mo9iw _pnraw">
+                                    <ul id="comments" class="_mo9iw _pnraw">
                                         <li class="_nk46a">
                                             <h1>
                                                 <a class="_4zhc5 _iqaka" title="zhendawho" href="/zhendawho/">zhendawho</a>
@@ -176,6 +187,43 @@
             </nav>
         </section>
     </span>
+    
+    <script>
+        var out = function(a) { console.log(a); };
+    
+        var profile = document.getElementById('profile-photo').src;
+        var username = document.getElementById('username').innerHTML;
+        var time = document.getElementById('post-time').innerHTML;
+        var photo = document.getElementById('post-photo').src;
+        var comments = document.getElementById('comments');
+        
+        
+        
+        function setValue(param, value) {
+            switch (param) {
+                case 'profile':
+                    document.getElementById('profile-photo').src = value;
+                    break;
+                
+                case 'username':
+                    document.getElementById('username').innerHTML = value;
+                    break;
+                
+                case 'time':
+                    document.getElementById('post-time').innerHTML = value;
+                    break;
+                
+                case 'photo':
+                    document.getElementById('post-photo').src = value;
+                    break;
+                
+                default:
+                    throw new Error('Invalid param for setValue');
+            }   
+        }
+        
+        
+    </script>
 </body>
 
 </html>
