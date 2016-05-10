@@ -59,24 +59,6 @@
                                             <noscript></noscript>
                                             <div class="_ovg3g"></div>
                                         </div>
-                                        <div class="_cj5pn">
-                                            <a style="margin-left: -54.6094px; margin-top: 6px; left: 39.2188%; top: 44.5312%;" class="_ofpcv" href="/suparna.s111/">
-                                                <span class="_s6wox">
-                                                    <div class="_3imbo"></div>
-                                                    <span>suparna.s111</span>
-                                                </span>
-                                            </a>
-                                            <div class="_ikcuh _locdu coreSpriteUserTagIndicator">
-                                                <div class="_4tedc">
-                                                    <iframe aria-hidden="true" class="_823eg" tabindex="-1"></iframe>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <span></span>
-                                        <span></span>
-                                        <div class="_4tedc">
-                                            <iframe aria-hidden="true" class="_823eg" tabindex="-1"></iframe>
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="_es1du _rgrbt">
@@ -85,7 +67,7 @@
                                             <span class="_tf9x3">
                                                 <span></span>
 <!-- Number of likes -->
-                                                <span id="number-likes">10000000000</span>
+                                                <span id="number-likes">12</span>
                                                 <span> likes</span>
                                             </span>
                                         </div>
@@ -94,42 +76,9 @@
                                     <ul id="comments" class="_mo9iw _pnraw">
                                         <li class="_nk46a">
                                             <h1>
-                                                <a class="_4zhc5 _iqaka" title="zhendawho" href="/zhendawho/">zhendawho</a>
-                                                <span>
-                                                    <span>HAPPY LATE MOTHERS DAY!!! sorry mom i forgot to post yesterday but ily and bye!</span>
-                                                </span>
+                                                <a class="_4zhc5 _iqaka" title="generator" href="/generator/">generator</a>
+                                                <span>Generate a custom comment with addComment(name, coment)!</span>
                                             </h1>
-                                        </li>
-                                        <li class="_nk46a">
-                                            <a class="_4zhc5 _iqaka" title="asmispam" href="/asmispam/">asmispam</a>
-                                            <span>
-                                                <span>IS THAT ALCOHOL</span>
-                                            </span>
-                                        </li>
-                                        <li class="_nk46a">
-                                            <a class="_4zhc5 _iqaka" title="suparna.s111" href="/suparna.s111/">suparna.s111</a>
-                                            <span>
-                                                <a href="/asmispam/">@asmispam</a>
-                                                <span> mhm</span>
-                                            </span>
-                                        </li>
-                                        <li class="_nk46a">
-                                            <a class="_4zhc5 _iqaka" title="suparna.s111" href="/suparna.s111/">suparna.s111</a>
-                                            <span>
-                                                <span>AW THANKS ILY SON</span>
-                                            </span>
-                                        </li>
-                                        <li class="_nk46a">
-                                            <a class="_4zhc5 _iqaka" title="ritu_the_goose" href="/ritu_the_goose/">ritu_the_goose</a>
-                                            <span>
-                                                <span>^^</span>
-                                            </span>
-                                        </li>
-                                        <li class="_nk46a">
-                                            <a class="_4zhc5 _iqaka" title="donatello" href="/donatello/">donatello</a>
-                                            <span>
-                                                <span>this was a self generated comment</span>
-                                            </span>
                                         </li>
                                     </ul>
                                     <section class="_jveic _dsvln">
@@ -143,11 +92,6 @@
                                     </section>
                                 </div>
                             </article>
-                        </div>
-                        <div class="_ikcuh">
-                            <div class="_4tedc">
-                                <iframe aria-hidden="true" class="_823eg" tabindex="-1"></iframe>
-                            </div>
                         </div>
                     </div>
                 </section>
@@ -189,16 +133,6 @@
     </span>
     
     <script>
-        var out = function(a) { console.log(a); };
-    
-        var profile = document.getElementById('profile-photo').src;
-        var username = document.getElementById('username').innerHTML;
-        var time = document.getElementById('post-time').innerHTML;
-        var photo = document.getElementById('post-photo').src;
-        var comments = document.getElementById('comments');
-        
-        
-        
         function setValue(param, value) {
             switch (param) {
                 case 'profile':
@@ -219,10 +153,29 @@
                 
                 default:
                     throw new Error('Invalid param for setValue');
-            }   
+            }
         }
         
-        
+        function addComment(name, comment) {
+            var a = document.createElement('a');
+            a.className = '_4zhc5 _iqaka';
+            a.title = name;
+            a.innerHTML = name;
+            
+            var span = document.createElement('span');
+            span.innerHTML = comment;
+            
+            var h1 = document.createElement('h1');
+            h1.appendChild(a);
+            h1.appendChild(span);
+            
+            var li = document.createElement('li');
+            li.className = '_nk46a';
+            li.appendChild(h1);
+            
+            var comments = document.getElementById('comments');
+            comments.appendChild(li);
+        }
     </script>
 </body>
 
