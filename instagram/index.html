@@ -15,13 +15,27 @@
     <link rel="stylesheet" href="instagram.css" type="text/css" >
     
     <style>
-        ._bfc7q {
+        .bottom {
             bottom: 0px;
             top: inherit;
         }
         
-        ._j4mb5, ._onabe {
+        .zero-height {
             height: 0px;
+        }
+        
+        #logo {
+            margin-top: 10px;
+            width: 140px;
+            height: 40px;
+            align-self: center;
+            vertical-align: middle;
+            -webkit-filter: brightness(100);
+            filter: brightness(100);
+        }
+        
+        ._bfc7q, ._j4mb5, ._hykpq {
+            height: 60px;
         }
     </style>
 </head>
@@ -30,6 +44,18 @@
 <body>
     <span id="react-root">
         <section class="_8f735">
+            
+            <nav class="_onabe" role="navigation" style="border: 0px">
+                <div class="_fjpuc _hykpq">
+                    <div>
+                        <div class="_j4mb5"></div>
+                        <div class="_bfc7q" style="background-color: #125688">
+                            <img id="logo" src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Instagram_logo.svg">
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
             <main class="_6ltyr" role="main">
                 <section class="_jx516">
                     <div class="_qj7yb">
@@ -49,6 +75,7 @@
                                         <time id="post-time" class="_379kp" datetime="2016-05-09T22:04:47.000Z" title="May 9, 2016">31m</time>
                                     </a>
                                 </header>
+                                
                                 <div>
                                     <div class="_ikcuh _e0mru _1ysqy">
                                         <div class="_22yr2 _rudo5">
@@ -61,6 +88,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="_es1du _rgrbt">
                                     <section class="_54eek _suqu9">
                                         <div class="_qwn3t _oajsw">
@@ -96,11 +124,12 @@
                     </div>
                 </section>
             </main>
-            <nav class="_onabe" role="navigation">
+            
+            <nav class="_onabe zero-height" role="navigation">
                 <div class="_fjpuc _hykpq">
                     <div>
-                        <div class="_j4mb5"></div>
-                        <div class="_bfc7q">
+                        <div class="_j4mb5 zero-height"></div>
+                        <div class="_bfc7q bottom">
                             <div class="_4kdxu">
                                 <div class="_n7q2c">
                                     <div class="_r1svv">
@@ -131,6 +160,7 @@
             </nav>
         </section>
     </span>
+    
     
     <script>
         function setValue(param, value) {
