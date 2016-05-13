@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>boxbox demo</title>
+        <title>Bouncy Basketball</title>
         
         <style>
             body {
@@ -11,31 +11,20 @@
                 color: #777;
                 background-color: #d9d9d9;
             }
-            canvas {
+            
+            #main-cv {
                 float: left;
-                background-color: white;
-            }
-            #hud {
-                float: left;
-                padding: 1em;
+                /*background-color: white;*/
+                /* http://paint.net.amihotornot.com.au/features/effects/plugins/Render/Grid_CheckerBoard_Maker/ */
+                background-image: url(http://paint.net.amihotornot.com.au/Features/Effects/Plugins/Render/Grid_CheckerBoard_Maker/Grid_CheckerBoard_Maker.Paint.NET.001.png);
             }
         </style>
     </head>
     
     <body>
-        <canvas id="bbdemo" width="600" height="400">
-            your browser doesn't support canvas
-        </canvas>
+        <h1>Bouncy Basketball</h1>
         
-        <div id="hud">
-            Arrow keys to move
-            <br>
-            Space to jump
-            <br>
-            Health: <span id="health">100</span>
-            <br>
-            Score: <span id="score">0</span>
-        </div>
+        <canvas id="main-cv" width="600" height="400"></canvas>
         
         <script src="Box2dWeb-2.1.a.3.js"></script>
         <script src="boxbox.js"></script>

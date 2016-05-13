@@ -1,8 +1,18 @@
 /* global boxbox */
 
-(function() {
+// (function() {
+    function out(a) { console.log(a); }
       
-    var canvas = document.getElementById('bbdemo');
+    var canvas = document.getElementById('main-cv');
+    var ctx = canvas.getContext('2d');
+    
+    var background = new Image();
+    background.src = '240px-8col-30w-0gut.png';
+    
+    background.onload = function(){
+        ctx.drawImage(background, 0, 0);
+        out('loaded');
+    }
     
     var world = boxbox.createWorld(canvas, {debugDraw:false});
     
@@ -17,6 +27,11 @@
         restitution: 0,
         color: 'blue'
     });
+    
+    // world.createEntity({
+        
+    // });
+    
     player.onKeydown(function(e) {
         var i;
         var obj;
@@ -72,57 +87,6 @@
         
     });
 
-    player.onImpact(function(other, power, tangentPower) {
-        // if (power > 3) {
-        //     damage(power - 3);
-        // }
-    });
-    
-    world.onRender(function(ctx) {
-        
-        // update camera position every draw
-        var p = player.position();
-        var c = this.camera();
-        
-        if (p.y < 14) {
-            if (p.x - 8 < c.x) { 
-                this.camera({x: player.position().x - 8});
-            }
-            else if (p.x - 12 > c.x) { 
-                this.camera({x: player.position().x - 12});
-            }
-        }
-        
-        // If you fall off the world, zoom out
-        else {
-            var scale = 30;
-            scale -= (p.y - 14);
-            scale = scale < 1 ? 1 : scale;
-            this.scale(scale);
-            
-            var newCameraX = c.x;
-                if (newCameraX > -9 || newCameraX < -11) {
-                if (newCameraX > -10) {
-                    newCameraX = newCameraX - .3;
-                }
-                if (newCameraX < -10) {
-                    newCameraX = newCameraX + .3;
-                }
-                this.camera({x: newCameraX});
-            }
-        }
-        
-        // Rendering for the joint between the two wheels
-        var p1 = wheel1.canvasPosition();
-        var p2 = wheel2.canvasPosition();
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 3;
-        ctx.beginPath();  
-        ctx.moveTo(p1.x, p1.y);  
-        ctx.lineTo(p2.x, p2.y);    
-        ctx.stroke();  
-    });
-
     var groundTemplate = {
         name: 'ground',
         type: 'static',
@@ -136,6 +100,8 @@
 
     world.createEntity(groundTemplate, {width: 4, x: 16, y: 5});
     
+    world.createEntity(groundTemplate, {height: 1, width: 1, x: 0, y: 0});
+    
     world.createEntity({
         name: 'square',
         x: 13,
@@ -146,17 +112,6 @@
     });
     
     world.createEntity({
-        name: 'circle',
-        shape: 'circle',
-        radius: 2,
-        x: 14,
-        y: 3,
-        density: .5,
-        image: 'https://incompl.github.io/boxbox/boxbox/demos/platformer/wheel.png',
-        imageStretchToFit: true
-    });
-    
-    world.createEntity({
         name: 'poly',
         shape: 'polygon',
         x: 5,
@@ -164,34 +119,10 @@
         color: 'purple'
     });
 
-    // Car thing
-    var wheelTemplate = {
-        name: 'wheel',
-        shape: 'circle',
-        radius: 1,
-        image: 'https://incompl.github.io/boxbox/boxbox/demos/platformer/wheel.png',
-        imageStretchToFit: true
-    };
-    var wheel1 = world.createEntity(wheelTemplate, {x: 1, y:1});
-    var wheel2 = world.createEntity(wheelTemplate, {x: 4, y:1});
-    world.createJoint(wheel1, wheel2);
-
     world.createEntity({
         name: 'platform',
         fixedRotation: true,
         height: .1
     });
-
-    // var platformMovingUp = true;
     
-    // window.setInterval(function() {
-    //     platformMovingUp = !platformMovingUp;
-    //     if (platformMovingUp) {
-    //         platform.setVelocity('moving platform', 5, 0);
-    //     }
-    //     else {
-    //         platform.setVelocity('moving platform', 5, 180);
-    //     }
-    // }, 1500);
-    
-})();
+// })();
