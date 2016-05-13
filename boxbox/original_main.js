@@ -8,16 +8,44 @@
     
     var player = world.createEntity({
         name: 'player',
-        x: 0.5,
+        x: .5,
         y: 12,
-        height: 0.2,
-        width: 0.2,
+        height: .2,
+        width: .2,
         fixedRotation: true,
         friction: .3,
         restitution: 0,
         color: 'blue'
     });
+    
+    var health = 100;
+    
+    var score = 0;
+    
+    function damage(x) {
+        if (player._destroyed) {
+            return;
+        }
+        health -= Math.round(x);
+        if (health < 1) {
+            health = 0;
+            player.destroy();
+            alert('Game over.');
+        }
+        document.getElementById('health').innerHTML = health;
+    }
+    
+    function addScore(x) {
+        score += Math.round(x);
+        document.getElementById('score').innerHTML = '' + score;
+    }
+    
     player.onKeydown(function(e) {
+        
+        if (this._destroyed) {
+            return;
+        }
+
         var i;
         var obj;
         var player = this;
@@ -63,6 +91,11 @@
     });
     
     player.onKeyup(function(e) {
+        
+        if (this._destroyed) {
+            return;
+        }
+        
         // clear movement force on arrow keyup
         if (e.keyCode === 37 || e.keyCode === 39) {
             this.clearForce('movement');
@@ -73,9 +106,9 @@
     });
 
     player.onImpact(function(other, power, tangentPower) {
-        // if (power > 3) {
-        //     damage(power - 3);
-        // }
+        if (power > 3) {
+            damage(power - 3);
+        }
     });
     
     world.onRender(function(ctx) {
@@ -160,8 +193,7 @@
         name: 'poly',
         shape: 'polygon',
         x: 5,
-        y: 8,
-        color: 'purple'
+        y: 8
     });
 
     // Car thing
@@ -176,22 +208,47 @@
     var wheel2 = world.createEntity(wheelTemplate, {x: 4, y:1});
     world.createJoint(wheel1, wheel2);
 
-    world.createEntity({
+    var platform = world.createEntity({
         name: 'platform',
         fixedRotation: true,
         height: .1
     });
 
-    // var platformMovingUp = true;
+    var platformMovingUp = true;
     
-    // window.setInterval(function() {
-    //     platformMovingUp = !platformMovingUp;
-    //     if (platformMovingUp) {
-    //         platform.setVelocity('moving platform', 5, 0);
-    //     }
-    //     else {
-    //         platform.setVelocity('moving platform', 5, 180);
-    //     }
-    // }, 1500);
+    window.setInterval(function() {
+        platformMovingUp = !platformMovingUp;
+        if (platformMovingUp) {
+            platform.setVelocity('moving platform', 5, 0);
+        }
+        else {
+            platform.setVelocity('moving platform', 5, 180);
+        }
+    }, 1500);
+    
+    var coinTemplate = {
+        name: 'coin',
+        shape: 'circle',
+        radius: .1,
+        color: 'yellow',
+        onStartContact: function(other) {
+            if (other.name() === 'player') {
+                addScore(100);
+                this.destroy();
+            }
+        }
+    };
+    
+    world.createEntity(coinTemplate, {x: 2, y: 4});
+    
+    world.createEntity(coinTemplate, {x: 2, y: 12});
+    
+    world.createEntity(coinTemplate, {
+        x: 16,
+        y: 5,
+        shape: 'square',
+        height: .1,
+        width: .1
+    });
     
 })();
