@@ -1,128 +1,89 @@
-/* global boxbox */
+//* global boxbox */
 
 // (function() {
     function out(a) { console.log(a); }
-      
+    
+    
+    var scale = 30;
+    
+    var worldWidth = 600 / scale;
+    var worldHeight = 420 / scale;
+    
+    
     var canvas = document.getElementById('main-cv');
-    var ctx = canvas.getContext('2d');
+    canvas.width = worldWidth * scale;
+    canvas.height = worldHeight * scale;
     
-    var background = new Image();
-    background.src = '240px-8col-30w-0gut.png';
-    
-    background.onload = function(){
-        ctx.drawImage(background, 0, 0);
-        out('loaded');
-    }
-    
-    var world = boxbox.createWorld(canvas, {debugDraw:false});
-    
-    var player = world.createEntity({
-        name: 'player',
-        x: 0.5,
-        y: 12,
-        height: 0.2,
-        width: 0.2,
-        fixedRotation: true,
-        friction: .3,
-        restitution: 0,
-        color: 'blue'
+    var world = boxbox.createWorld(canvas, {
+        debugDraw: false,
+        scale: scale
     });
+    // world.camera({x:-5, y: -5});
+    // world.scale(20);
     
-    // world.createEntity({
-        
-    // });
-    
-    player.onKeydown(function(e) {
-        var i;
-        var obj;
-        var player = this;
-
-        // determine what you're standing on
-        var standingOn;
-        var pos = this.position();
-        var allUnderMe = world.find(pos.x - .08, pos.y + .1, pos.x + .09, pos.y + .105);
-        for (i = 0; i < allUnderMe.length; i++) {
-            obj = allUnderMe[i];
-            if (obj !== player) {
-                standingOn = obj;
-                break;
-            }
-        }
-        
-        // jump
-        if (e.keyCode === 32 && standingOn) {
-            this.applyImpulse(2);
-            return false;
-        }
-
-        // when airborn movement is restricted
-        var force = 4;
-        if (!standingOn) {
-            force = force / 2;
-        }
-
-        // move left
-        if (e.keyCode === 37) {
-            this.setForce('movement', force, 270);
-            this.friction(.1);
-            return false;
-        }
-
-        // move right
-        if (e.keyCode === 39) {
-            this.setForce('movement', force, 90);
-            this.friction(.1);
-            return false;
-        }
-        
-    });
-    
-    player.onKeyup(function(e) {
-        // clear movement force on arrow keyup
-        if (e.keyCode === 37 || e.keyCode === 39) {
-            this.clearForce('movement');
-            this.friction(3);
-            return false;
-        }
-        
-    });
 
     var groundTemplate = {
         name: 'ground',
         type: 'static',
-        height: .1,
         color: 'green'
     };
-
-    world.createEntity(groundTemplate, {width: 10, x: 10, y: 13.22});
-
-    world.createEntity(groundTemplate, {width: 3, x: 3, y: 5});
-
-    world.createEntity(groundTemplate, {width: 4, x: 16, y: 5});
     
-    world.createEntity(groundTemplate, {height: 1, width: 1, x: 0, y: 0});
+    // top
+    world.createEntity(groundTemplate, {height: 0.1, width: worldWidth / 2, x: worldWidth / 2, y: -0.1});
+    // bottom
+    world.createEntity(groundTemplate, {height: 0.1, width: 10, x: 10, y: worldHeight + 0.1});
+    // left
+    world.createEntity(groundTemplate, {height: worldHeight / 2, width: 0.1, x: -0.1, y: worldHeight / 2});
+    // right
+    world.createEntity(groundTemplate, {height: worldHeight / 2, width: 0.1, x: worldWidth + 0.1, y: worldHeight / 2});
     
-    world.createEntity({
-        name: 'square',
-        x: 13,
-        y: 8,
-        height: .8,
-        width: .2,
-        imageOffsetY: -.2
+    
+    var gridTemplate = {
+        name: 'ground',
+        type: 'static',
+        height: 0.5,
+        width: 0.5,
+        color: 'pink',
+        borderWidth: 0
+    };
+    
+    // world.createEntity(gridTemplate, {x: 0.5, y: 0.5});
+    // world.createEntity(gridTemplate, {x: 1.5, y: 1.5});
+    // world.createEntity(gridTemplate, {x: 2.5, y: 2.5});
+    // world.createEntity(gridTemplate, {x: 3.5, y: 3.5});
+    // world.createEntity(gridTemplate, {x: 4.5, y: 4.5});
+    // world.createEntity(gridTemplate, {x: 5.5, y: 5.5});
+    // world.createEntity(gridTemplate, {x: 6.5, y: 6.5});
+    // world.createEntity(gridTemplate, {x: 7.5, y: 7.5});
+    // world.createEntity(gridTemplate, {x: 8.5, y: 8.5});
+    // world.createEntity(gridTemplate, {x: 9.5, y: 9.5});
+    // world.createEntity(gridTemplate, {x: 10.5, y: 10.5});
+    // world.createEntity(gridTemplate, {x: 11.5, y: 11.5});
+    
+    
+    var hoopTemplate = {
+        name: 'hoop',
+        type: 'static',
+        height: 0.1,
+        width: 0.1,
+        color: 'blue',
+    }
+    
+    world.createEntity(hoopTemplate, {x: 0.5, y: 6});
+    world.createEntity(hoopTemplate, {x: 2, y: 6});
+    
+    
+    var ball = world.createEntity({
+        name: 'ball',
+        shape: 'circle',
+        radius: 0.5,
+        x: 10,
+        y: 10,
+        active: true,
+        color: 'orange'
     });
     
-    world.createEntity({
-        name: 'poly',
-        shape: 'polygon',
-        x: 5,
-        y: 8,
-        color: 'purple'
-    });
-
-    world.createEntity({
-        name: 'platform',
-        fixedRotation: true,
-        height: .1
-    });
+    world.createEntity(groundTemplate, {width: 3, height: 0.1, x: 10, y: 10.1})
     
+    // ball.applyImpulse(30, 225);
 // })();
