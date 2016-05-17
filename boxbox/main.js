@@ -80,10 +80,11 @@
         x: 10,
         y: 10,
         active: true,
-        color: 'orange'
+        color: 'orange',
+        bullet: true
     });
     
-    world.createEntity(groundTemplate, {width: 3, height: 0.1, x: 10, y: 10.1})
+    world.createEntity(groundTemplate, {width: 3, height: 0.1, x: 10, y: 10.1});
     
-    // ball.applyImpulse(30, 225);
+    // ball.applyImpulse(30, 325);
 // })();
