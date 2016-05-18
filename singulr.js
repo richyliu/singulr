@@ -17,7 +17,7 @@
     };
     
     var Constants = {
-        HOME_PAGE: 'home.html',
+        // HOME_PAGE: 'home.html',
         BASE_PAGE: 'base.html',
         PAGE_ID: 'page',
         CONTENT_ID: 'content',
@@ -33,13 +33,11 @@
             // Add user options
             for (var option in userOptions) {
                 options[option] = userOptions[option];
+                Constants[option] = userOptions[option];
             }
-            
-            // console.log(options);
-            if (options.homePage !== undefined) Constants.HOME_PAGE = options.homePage;
-            if (options.basePage !== undefined) Constants.BASE_PAGE = options.basePage;
-            if (options.pageId !== undefined) Constants.PAGE_ID = options.pageId;
-            if (options.contentId !== undefined) Constants.CONTENT_ID = options.contentId;
+            for (var option in userOptions) {
+                options[option] = userOptions[option];
+            }
             
             
             // load base on startup
@@ -52,7 +50,7 @@
             });
         },
         getPage: getPage,
-        setPage: setPage
+        loadPage: loadPage
     };
     
     
@@ -97,6 +95,7 @@
         setPage(page);
         currentPage = page;
         
+        
         ajaxLoad(Constants.CONTENT_ID, page, function(response) {
             // remove previous page's js and css
             if (addedContent !== []) {
@@ -120,7 +119,7 @@
             if (response.search('<html>') > -1) {
                 html.body.parentElement.innerHTML = response;
             } else {
-                html.body.parentElement.innerHTML = `<html>${response}</html>`;
+                html.body.parentElement.innerHTML = '<html>' + response + '</html>';
             }
             
             
@@ -133,7 +132,6 @@
             
             
             /* set title */
-            
             var titleElement = html.getElementsByTagName('title')[0];
             if (titleElement !== null && titleElement !== '') {
                 document.title = titleElement.innerHTML;
@@ -141,7 +139,6 @@
             
             
             /* load css */
-            
             if (html.getElementsByTagName('style') !== []) {
                 var styleElements = html.getElementsByTagName('style');
                 
@@ -175,7 +172,6 @@
             
             
             /* load scripts */
-            
             if (html.getElementsByTagName('script') !== []){
                 var scriptElements = html.getElementsByTagName('script');
                 
@@ -197,8 +193,8 @@
                 }
             }
             
-            removeNodesInQueue();
             
+            removeNodesInQueue();
             
             return html.documentElement.getElementsByTagName('body')[0].innerHTML;
         });
@@ -234,9 +230,9 @@
     // list of nodes has bad effects
     function addNodeToRemovalQueue(node) {
         if (node === undefined || node === null) {
-            throw 'No node provided';
+            throw new Error('No node provided');
         } else if (node.parentNode === null) {
-            throw 'Node has been already removed';
+            throw new Error('Node has been already removed');
         } else {
             removalQueue.push(node);
         }
