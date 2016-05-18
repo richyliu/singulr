@@ -17,7 +17,7 @@
     };
     
     var Constants = {
-        // HOME_PAGE: 'home.html',
+        HOME_PAGE: 'home.html',
         BASE_PAGE: 'base.html',
         PAGE_ID: 'page',
         CONTENT_ID: 'content',
@@ -32,11 +32,11 @@
         init: function (userOptions) {
             // Add user options
             for (var option in userOptions) {
-                options[option] = userOptions[option];
-                Constants[option] = userOptions[option];
-            }
-            for (var option in userOptions) {
-                options[option] = userOptions[option];
+                if (options[option] !== undefined) {
+                    options[option] = userOptions[option];
+                } else if (Constants[option] !== undefined) {
+                    Constants[option] = userOptions[option];
+                }
             }
             
             
