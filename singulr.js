@@ -13,7 +13,7 @@
     var addedContent = [];
     var removalQueue = [];
     var options = {
-        test: true
+        onPageLoaded: function() {}
     };
     
     var Constants = {
@@ -26,8 +26,6 @@
     };
     
     
-    function out(a) { console.log(a) }
-    
     
     
     window.Singulr = {
@@ -37,7 +35,7 @@
                 options[option] = userOptions[option];
             }
             
-            // out(options);
+            // console.log(options);
             if (options.homePage !== undefined) Constants.HOME_PAGE = options.homePage;
             if (options.basePage !== undefined) Constants.BASE_PAGE = options.basePage;
             if (options.pageId !== undefined) Constants.PAGE_ID = options.pageId;
@@ -45,13 +43,12 @@
             
             
             // load base on startup
-            ajaxLoad(Constants.PAGE_ID, Constants.BASE_PAGE, function(response) {
+            ajaxLoad(Constants.PAGE_ID, Constants.BASE_PAGE, function() {
                 if (getPage() !== null && getPage() !== currentPage) {
                     loadPage(getPage());
                 } else {
                     loadPage(Constants.HOME_PAGE);
                 }
-                return response;
             });
         },
         getPage: getPage,
@@ -88,7 +85,7 @@
         
         function onhashchange() {
             var page = getPage();
-            out('hash changed: ' + page);
+            console.log('hash changed: ' + page);
             
             loadPage(page);
         }
@@ -117,9 +114,15 @@
             if (!response || typeof response !== 'string') {
                 throw 'Invalid page';
             }
-            var tmp = document.implementation.createHTMLDocument();
-            tmp.body.parentElement.innerHTML = `<html>${response}</html>`;
-            var html = tmp;
+            
+            var html = document.implementation.createHTMLDocument();
+            // has enclosing html tags
+            if (response.search('<html>') > -1) {
+                html.body.parentElement.innerHTML = response;
+            } else {
+                html.body.parentElement.innerHTML = `<html>${response}</html>`;
+            }
+            
             
             var cssCode;
             var cssSrc;
@@ -146,7 +149,7 @@
                     cssCode = styleElements[i].innerHTML;
                     if (cssCode !== '') {
                         temp = document.createElement('style');
-                        temp.innerHTML = cssCode
+                        temp.innerHTML = cssCode;
                         document.getElementsByTagName('head')[0].appendChild(temp);
                         addedContent.push(temp);
                     }
@@ -210,7 +213,15 @@
         
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                document.getElementById(elementId).innerHTML = callback(xhr.responseText);
+                var res = callback(xhr.responseText);
+                if (typeof res === 'string') {
+                    document.getElementById(elementId).innerHTML = res;
+                } else if (res === undefined) {
+                    document.getElementById(elementId).innerHTML = xhr.responseText;
+                } else {
+                    throw new Error('Invalid callback return!');
+                }
+                options.onPageLoaded();
             }
         };
         
