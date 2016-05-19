@@ -1,6 +1,9 @@
 /*! Singulr v0.1.0 | (c) Richard Liu | MIT License */
 /*
     TODO:
+     - fix link rel="icon"
+     - init. things like trackers on every load
+     
      
      - compress code using yui compressor
      - or use closure (http://closure-compiler.appspot.com/home)
@@ -13,7 +16,8 @@
     var addedContent = [];
     var removalQueue = [];
     var options = {
-        onPageLoaded: function() {}
+        onPageLoaded: function() {},
+        analyticsScripts: []
     };
     
     var Constants = {
@@ -73,12 +77,18 @@
         
         
         function onclick() {
-            event.preventDefault();
             var page = this.getAttribute('href');
+            
+            // http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
+            // direct url
+            if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1) {
+                return;
+            }
             
             if (currentPage !== page) {
                 loadPage(page);
             }
+            event.preventDefault();
         }
         
         function onhashchange() {
@@ -190,6 +200,17 @@
                         addedContent.push(temp);
                     }
                     addNodeToRemovalQueue(scriptElements[i]);
+                }
+            }
+            
+            /* load analytics scripts */
+            var as = options.analyticsScripts;
+            if (as.length > 0) {
+                for (var i = 0; i < as.length; i++) {
+                    temp = document.createElement('script');
+                    temp.src = as[i];
+                    document.getElementsByTagName('body')[0].appendChild(temp);
+                    addedContent.push(temp);
                 }
             }
             
