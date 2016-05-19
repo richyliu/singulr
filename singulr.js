@@ -1,8 +1,13 @@
 /*! Singulr v0.1.0 | (c) Richard Liu | MIT License */
 /*
     TODO:
-     - fix link rel="icon"
+     - allow href's with url parameters
+     - 404 page
      - init. things like trackers on every load
+     - styles applied to body aren't applied
+     - only add link rel="stylesheet"
+     - accept seperate pages which do not follow base
+     
      
      
      - compress code using yui compressor
@@ -47,7 +52,7 @@
             // load base on startup
             ajaxLoad(Constants.PAGE_ID, Constants.BASE_PAGE, function() {
                 if (getPage() !== null && getPage() !== currentPage) {
-                    loadPage(getPage());
+                    loadPage(getFullPage());
                 } else {
                     loadPage(Constants.HOME_PAGE);
                 }
@@ -79,23 +84,20 @@
         function onclick() {
             var page = this.getAttribute('href');
             
+            
             // http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
             // direct url
             if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1) {
                 return;
             }
+                
+            loadPage(page);
             
-            if (currentPage !== page) {
-                loadPage(page);
-            }
             event.preventDefault();
         }
         
         function onhashchange() {
-            var page = getPage();
-            console.log('hash changed: ' + page);
-            
-            loadPage(page);
+            loadPage(getFullPage());
         }
     }
     
@@ -103,10 +105,18 @@
     
     function loadPage(page) {
         setPage(page);
-        currentPage = page;
+        
+        var requestPage;
+        if (page.search(/\?/) > -1) {
+            requestPage = page.slice(0, page.search(/\?/));
+        } else {
+            requestPage = page;
+        }
+        if (requestPage === currentPage) return;
+        currentPage = requestPage;
         
         
-        ajaxLoad(Constants.CONTENT_ID, page, function(response) {
+        ajaxLoad(Constants.CONTENT_ID, requestPage, function(response) {
             // remove previous page's js and css
             if (addedContent !== []) {
                 for (var i = 0; i < addedContent.length; i++) {
@@ -275,20 +285,23 @@
     }
     
     
+    function getFullPage() {
+        var hash = window.location.hash;
+        
+        return (hash[1] === '!') ? hash.slice(2) : null;
+    }
+    
+    
     function getPage() {
         var hash = window.location.hash;
-        var page;
         
-        // #!page
         if (hash[1] === '!') {
-            // #!page?option=value
-            if (hash.search(/\?/) > 1) {
-                page = hash.slice(2, hash.search(/\?/));
-            // #!page
+            var page = hash.slice(2);
+            if (page.search(/\?/) > -1) {
+                return page.slice(0, page.search(/\?/));
             } else {
-                page = hash.slice(2);
+                return page;
             }
-            return page;
         } else {
             return null;
         }
