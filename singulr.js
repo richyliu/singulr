@@ -1,18 +1,15 @@
 /*! Singulr v0.1.0 | (c) Richard Liu | MIT License */
 /*
     TODO:
-     - allow href's with url parameters
-     - 404 page
-     - init. things like trackers on every load
-     - styles applied to body aren't applied
-     - only add link rel="stylesheet"
+     - resolve window.location.href = 'page.html' issue
      - accept seperate pages which do not follow base
-     
-     
-     
-     - compress code using yui compressor
-     - or use closure (http://closure-compiler.appspot.com/home)
      - dynamically change favicon
+     - nested pages (hello/foo.html)
+     
+     - compress code with Google Closure (http://closure-compiler.appspot.com/home)
+    
+    NOTES:
+     - styles applied to body aren't applied
 */
 
 
@@ -20,18 +17,15 @@
     var currentPage = '';
     var addedContent = [];
     var removalQueue = [];
+    
     var options = {
         onPageLoaded: function() {},
-        analyticsScripts: []
-    };
-    
-    var Constants = {
+        analyticNodes: [],
         HOME_PAGE: 'home.html',
         BASE_PAGE: 'base.html',
+        PAGE_404: '404.html',
         PAGE_ID: 'page',
         CONTENT_ID: 'content',
-        SWIPE_TO_ID: 'swipe-to',
-        SWIPE_FROM_ID: 'page'
     };
     
     
@@ -41,20 +35,18 @@
         init: function (userOptions) {
             // Add user options
             for (var option in userOptions) {
-                if (options[option] !== undefined) {
+                if (userOptions.hasOwnProperty(option) && options[option] !== undefined) {
                     options[option] = userOptions[option];
-                } else if (Constants[option] !== undefined) {
-                    Constants[option] = userOptions[option];
                 }
             }
             
             
             // load base on startup
-            ajaxLoad(Constants.PAGE_ID, Constants.BASE_PAGE, function() {
+            ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
                 if (getPage() !== null && getPage() !== currentPage) {
                     loadPage(getFullPage());
                 } else {
-                    loadPage(Constants.HOME_PAGE);
+                    loadPage(options.HOME_PAGE);
                 }
             });
         },
@@ -116,7 +108,7 @@
         currentPage = requestPage;
         
         
-        ajaxLoad(Constants.CONTENT_ID, requestPage, function(response) {
+        ajaxLoad(options.CONTENT_ID, requestPage, function(response) {
             // remove previous page's js and css
             if (addedContent !== []) {
                 for (var i = 0; i < addedContent.length; i++) {
@@ -164,7 +156,7 @@
                 
                 for (var i = 0; i < styleElements.length; i++) {
                     cssCode = styleElements[i].innerHTML;
-                    if (cssCode !== '') {
+                    if (cssCode !== '' && styleElements[i].getAttribute('rel') === 'stylesheet') {
                         temp = document.createElement('style');
                         temp.innerHTML = cssCode;
                         document.getElementsByTagName('head')[0].appendChild(temp);
@@ -213,14 +205,13 @@
                 }
             }
             
-            /* load analytics scripts */
-            var as = options.analyticsScripts;
-            if (as.length > 0) {
-                for (var i = 0; i < as.length; i++) {
-                    temp = document.createElement('script');
-                    temp.src = as[i];
-                    document.getElementsByTagName('body')[0].appendChild(temp);
-                    addedContent.push(temp);
+            
+            /* load analytic nodes */
+            var an = options.analyticNodes;
+            if (an.length > 0) {
+                for (var i = 0; i < an.length; i++) {
+                    document.getElementsByTagName('body')[0].appendChild(an[i]);
+                    addedContent.push(an[i]);
                 }
             }
             
@@ -249,6 +240,8 @@
                     throw new Error('Invalid callback return!');
                 }
                 options.onPageLoaded();
+            } else if (xhr.status === 404) {
+                loadPage(options.PAGE_404);
             }
         };
         

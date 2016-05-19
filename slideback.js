@@ -4,6 +4,7 @@
     var touchStartTime = -1;
     var xStart = -1;
     var yStart = -1;
+    
     var options = {
         SWIPE_TO_ID: 'swipe-to',
         SWIPE_FROM_ID: 'page',
