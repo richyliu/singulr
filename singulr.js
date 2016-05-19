@@ -79,6 +79,7 @@
         function onclick() {
             var page = this.getAttribute('href');
             
+            // http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
             // direct url
             if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1) {
                 return;
