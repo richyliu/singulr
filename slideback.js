@@ -114,6 +114,6 @@
     }
     function moveContentContainer(offset) {
         document.getElementById(options.SWIPE_FROM_ID).style.transform = `translate(${offset}vw, 0px)`;
-        out('moving content to ' + offset)
+        out('moving content to ' + offset);
     }
 }());
