@@ -285,6 +285,7 @@
                 document.getElementsByTagName('body')[0].appendChild(addOnLoad[i]);
                 addedContent.push(addOnLoad[i]);
             }
+            addOnLoad = [];
         };
         
         xhr.send();
