@@ -1,12 +1,12 @@
 /*! Singulr v0.1.0 | (c) Richard Liu | MIT License */
 /*
     BUGS:
-     - invoke javascript after page has been loaded (if at end of body)
+     - 
     
     FEATURES:
      - accept seperate pages which do not follow base
-     - dynamically change favicon
      - nested pages (hello/foo.html)
+     - dynamically change favicon
      
      - compress code with Google Closure (http://closure-compiler.appspot.com/home)
     
@@ -221,7 +221,7 @@
             
             /* deferr scripts loading in body */
             if (html.getElementsByTagName('script') !== []){
-                var scriptElements = html.getElementsByTagName('body')[0].getElementsByTagName('script');
+                scriptElements = html.getElementsByTagName('body')[0].getElementsByTagName('script');
                 
                 for (var i = 0; i < scriptElements.length; i++) {
                     jsSrc = scriptElements[i].getAttribute('src');
@@ -230,12 +230,10 @@
                         temp = document.createElement('script');
                         temp.src = jsSrc;
                         addOnLoad.push(temp);
-                        addedContent.push(temp);
                     } else if (jsCode !== '') {
                         temp = document.createElement('script');
                         temp.innerHTML = jsCode;
                         addOnLoad.push(temp);
-                        addedContent.push(temp);
                     }
                     addNodeToRemovalQueue(scriptElements[i]);
                 }
@@ -279,9 +277,11 @@
             } else if (xhr.status === 404) {
                 loadPage(options.PAGE_404);
             }
+            
             options.onCurrentPageLoad();
             for (var i = 0; i < addOnLoad.length; i++) {
                 document.getElementsByTagName('body')[0].appendChild(addOnLoad[i]);
+                addedContent.push(addOnLoad[i]);
             }
         };
         
