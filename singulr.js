@@ -197,7 +197,7 @@
             
             
             /* load scripts in head */
-            if (html.getElementsByTagName('script') !== []){
+            if (html.getElementsByTagName('head')[0].getElementsByTagName('script') !== []){
                 var scriptElements = html.getElementsByTagName('head')[0].getElementsByTagName('script');
                 
                 for (var i = 0; i < scriptElements.length; i++) {
@@ -220,8 +220,10 @@
             
             
             /* deferr scripts loading in body */
-            if (html.getElementsByTagName('script') !== []){
+            if (html.getElementsByTagName('body')[0].getElementsByTagName('script') !== []){
                 scriptElements = html.getElementsByTagName('body')[0].getElementsByTagName('script');
+                
+                console.log(scriptElements)
                 
                 for (var i = 0; i < scriptElements.length; i++) {
                     jsSrc = scriptElements[i].getAttribute('src');
