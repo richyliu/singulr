@@ -1,7 +1,9 @@
 /*! Singulr v0.1.0 | (c) Richard Liu | MIT License */
 /*
-    TODO:
+    BUGS:
      - resolve window.location.href = 'page.html' issue
+    
+    FEATURES:
      - accept seperate pages which do not follow base
      - dynamically change favicon
      - nested pages (hello/foo.html)
@@ -20,6 +22,7 @@
     
     var options = {
         onPageLoaded: function() {},
+        onCurrentPageLoad: function() {},
         analyticNodes: [],
         HOME_PAGE: 'home.html',
         BASE_PAGE: 'base.html',
@@ -107,8 +110,14 @@
         if (requestPage === currentPage) return;
         currentPage = requestPage;
         
+        try {
+            ajaxLoad(options.CONTENT_ID, requestPage, callback);
+        } catch (e) {
+            console.error(e);
+            loadPage(options.PAGE_404);
+        }
         
-        ajaxLoad(options.CONTENT_ID, requestPage, function(response) {
+        function callback (response) {
             // remove previous page's js and css
             if (addedContent !== []) {
                 for (var i = 0; i < addedContent.length; i++) {
@@ -219,7 +228,7 @@
             removeNodesInQueue();
             
             return html.documentElement.getElementsByTagName('body')[0].innerHTML;
-        });
+        }
     }
     
     
@@ -243,6 +252,7 @@
             } else if (xhr.status === 404) {
                 loadPage(options.PAGE_404);
             }
+            options.onCurrentPageLoad();
         };
         
         xhr.send();
