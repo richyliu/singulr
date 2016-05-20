@@ -1,7 +1,7 @@
 /*! Singulr v0.1.0 | (c) Richard Liu | MIT License */
 /*
     BUGS:
-     - resolve window.location.href = 'page.html' issue
+     - invoke javascript after page has been loaded (if at end of body)
     
     FEATURES:
      - accept seperate pages which do not follow base
@@ -19,6 +19,7 @@
     var currentPage = '';
     var addedContent = [];
     var removalQueue = [];
+    var addOnLoad = [];
     
     var options = {
         onPageLoaded: function() {},
@@ -195,9 +196,9 @@
             }
             
             
-            /* load scripts */
+            /* load scripts in head */
             if (html.getElementsByTagName('script') !== []){
-                var scriptElements = html.getElementsByTagName('script');
+                var scriptElements = html.getElementsByTagName('head')[0].getElementsByTagName('script');
                 
                 for (var i = 0; i < scriptElements.length; i++) {
                     jsSrc = scriptElements[i].getAttribute('src');
@@ -205,12 +206,35 @@
                     if (jsSrc !== null) {
                         temp = document.createElement('script');
                         temp.src = jsSrc;
-                        document.getElementsByTagName('body')[0].appendChild(temp);
+                        document.getElementsByTagName('head')[0].appendChild(temp);
                         addedContent.push(temp);
                     } else if (jsCode !== '') {
                         temp = document.createElement('script');
                         temp.innerHTML = jsCode;
-                        document.getElementsByTagName('body')[0].appendChild(temp);
+                        document.getElementsByTagName('head')[0].appendChild(temp);
+                        addedContent.push(temp);
+                    }
+                    addNodeToRemovalQueue(scriptElements[i]);
+                }
+            }
+            
+            
+            /* deferr scripts loading in body */
+            if (html.getElementsByTagName('script') !== []){
+                var scriptElements = html.getElementsByTagName('body')[0].getElementsByTagName('script');
+                
+                for (var i = 0; i < scriptElements.length; i++) {
+                    jsSrc = scriptElements[i].getAttribute('src');
+                    jsCode = scriptElements[i].innerHTML;
+                    if (jsSrc !== null) {
+                        temp = document.createElement('script');
+                        temp.src = jsSrc;
+                        addOnLoad.push(temp);
+                        addedContent.push(temp);
+                    } else if (jsCode !== '') {
+                        temp = document.createElement('script');
+                        temp.innerHTML = jsCode;
+                        addOnLoad.push(temp);
                         addedContent.push(temp);
                     }
                     addNodeToRemovalQueue(scriptElements[i]);
@@ -256,6 +280,9 @@
                 loadPage(options.PAGE_404);
             }
             options.onCurrentPageLoad();
+            for (var i = 0; i < addOnLoad.length; i++) {
+                document.getElementsByTagName('body')[0].appendChild(addOnLoad[i]);
+            }
         };
         
         xhr.send();
