@@ -4,6 +4,7 @@
     var touchStartTime = -1;
     var xStart = -1;
     var yStart = -1;
+    
     var options = {
         SWIPE_TO_ID: 'swipe-to',
         SWIPE_FROM_ID: 'page',
@@ -113,6 +114,6 @@
     }
     function moveContentContainer(offset) {
         document.getElementById(options.SWIPE_FROM_ID).style.transform = `translate(${offset}vw, 0px)`;
-        out('moving content to ' + offset)
+        out('moving content to ' + offset);
     }
 }());
