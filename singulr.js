@@ -54,7 +54,10 @@
             });
         },
         getPage: getPage,
-        loadPage: loadPage
+        loadPage: loadPage,
+        onCurrentPageLoad: function(func) {
+            if (typeof func === 'function') options.onCurrentPageLoad = func; 
+        }
     };
     
     
