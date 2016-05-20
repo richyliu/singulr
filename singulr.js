@@ -223,8 +223,6 @@
             if (html.getElementsByTagName('body')[0].getElementsByTagName('script') !== []){
                 scriptElements = html.getElementsByTagName('body')[0].getElementsByTagName('script');
                 
-                console.log(scriptElements)
-                
                 for (var i = 0; i < scriptElements.length; i++) {
                     jsSrc = scriptElements[i].getAttribute('src');
                     jsCode = scriptElements[i].innerHTML;
@@ -280,12 +278,13 @@
                 loadPage(options.PAGE_404);
             }
             
-            options.onCurrentPageLoad();
             for (var i = 0; i < addOnLoad.length; i++) {
                 document.getElementsByTagName('body')[0].appendChild(addOnLoad[i]);
                 addedContent.push(addOnLoad[i]);
             }
             addOnLoad = [];
+            
+            options.onCurrentPageLoad();
         };
         
         xhr.send();
