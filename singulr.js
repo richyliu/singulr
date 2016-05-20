@@ -1,10 +1,12 @@
 /*! Singulr v0.1.0 | (c) Richard Liu | MIT License */
 /*
-    TODO:
-     - resolve window.location.href = 'page.html' issue
+    BUGS:
+     - 
+    
+    FEATURES:
      - accept seperate pages which do not follow base
-     - dynamically change favicon
      - nested pages (hello/foo.html)
+     - dynamically change favicon
      
      - compress code with Google Closure (http://closure-compiler.appspot.com/home)
     
@@ -17,9 +19,11 @@
     var currentPage = '';
     var addedContent = [];
     var removalQueue = [];
+    var addOnLoad = [];
     
     var options = {
         onPageLoaded: function() {},
+        onCurrentPageLoad: function() {},
         analyticNodes: [],
         HOME_PAGE: 'home.html',
         BASE_PAGE: 'base.html',
@@ -51,7 +55,10 @@
             });
         },
         getPage: getPage,
-        loadPage: loadPage
+        loadPage: loadPage,
+        onCurrentPageLoad: function(func) {
+            if (typeof func === 'function') options.onCurrentPageLoad = func; 
+        }
     };
     
     
@@ -107,8 +114,14 @@
         if (requestPage === currentPage) return;
         currentPage = requestPage;
         
+        try {
+            ajaxLoad(options.CONTENT_ID, requestPage, callback);
+        } catch (e) {
+            console.error(e);
+            loadPage(options.PAGE_404);
+        }
         
-        ajaxLoad(options.CONTENT_ID, requestPage, function(response) {
+        function callback (response) {
             // remove previous page's js and css
             if (addedContent !== []) {
                 for (var i = 0; i < addedContent.length; i++) {
@@ -183,9 +196,9 @@
             }
             
             
-            /* load scripts */
-            if (html.getElementsByTagName('script') !== []){
-                var scriptElements = html.getElementsByTagName('script');
+            /* load scripts in head */
+            if (html.getElementsByTagName('head')[0].getElementsByTagName('script') !== []){
+                var scriptElements = html.getElementsByTagName('head')[0].getElementsByTagName('script');
                 
                 for (var i = 0; i < scriptElements.length; i++) {
                     jsSrc = scriptElements[i].getAttribute('src');
@@ -193,13 +206,36 @@
                     if (jsSrc !== null) {
                         temp = document.createElement('script');
                         temp.src = jsSrc;
-                        document.getElementsByTagName('body')[0].appendChild(temp);
+                        document.getElementsByTagName('head')[0].appendChild(temp);
                         addedContent.push(temp);
                     } else if (jsCode !== '') {
                         temp = document.createElement('script');
                         temp.innerHTML = jsCode;
-                        document.getElementsByTagName('body')[0].appendChild(temp);
+                        document.getElementsByTagName('head')[0].appendChild(temp);
                         addedContent.push(temp);
+                    }
+                    addNodeToRemovalQueue(scriptElements[i]);
+                }
+            }
+            
+            
+            /* deferr scripts loading in body */
+            if (html.getElementsByTagName('body')[0].getElementsByTagName('script') !== []){
+                scriptElements = html.getElementsByTagName('body')[0].getElementsByTagName('script');
+                
+                console.log(scriptElements)
+                
+                for (var i = 0; i < scriptElements.length; i++) {
+                    jsSrc = scriptElements[i].getAttribute('src');
+                    jsCode = scriptElements[i].innerHTML;
+                    if (jsSrc !== null) {
+                        temp = document.createElement('script');
+                        temp.src = jsSrc;
+                        addOnLoad.push(temp);
+                    } else if (jsCode !== '') {
+                        temp = document.createElement('script');
+                        temp.innerHTML = jsCode;
+                        addOnLoad.push(temp);
                     }
                     addNodeToRemovalQueue(scriptElements[i]);
                 }
@@ -219,7 +255,7 @@
             removeNodesInQueue();
             
             return html.documentElement.getElementsByTagName('body')[0].innerHTML;
-        });
+        }
     }
     
     
@@ -243,6 +279,13 @@
             } else if (xhr.status === 404) {
                 loadPage(options.PAGE_404);
             }
+            
+            options.onCurrentPageLoad();
+            for (var i = 0; i < addOnLoad.length; i++) {
+                document.getElementsByTagName('body')[0].appendChild(addOnLoad[i]);
+                addedContent.push(addOnLoad[i]);
+            }
+            addOnLoad = [];
         };
         
         xhr.send();
