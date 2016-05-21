@@ -20,6 +20,7 @@
     var addedContent = [];
     var removalQueue = [];
     var addOnLoad = [];
+    var allScripts = [];
     
     var options = {
         onPageLoaded: function() {},
@@ -197,6 +198,7 @@
             
             
             /* load scripts in head */
+            var allScripts = [];
             if (html.getElementsByTagName('head')[0].getElementsByTagName('script') !== []){
                 var scriptElements = html.getElementsByTagName('head')[0].getElementsByTagName('script');
                 
@@ -204,19 +206,16 @@
                     jsSrc = scriptElements[i].getAttribute('src');
                     jsCode = scriptElements[i].innerHTML;
                     if (jsSrc !== null) {
-                        temp = document.createElement('script');
-                        temp.src = jsSrc;
-                        document.getElementsByTagName('head')[0].appendChild(temp);
+                        allScripts.push(['src', jsSrc]);
                         addedContent.push(temp);
                     } else if (jsCode !== '') {
-                        temp = document.createElement('script');
-                        temp.innerHTML = jsCode;
-                        document.getElementsByTagName('head')[0].appendChild(temp);
+                        allScripts.push(['code', jsCode]);
                         addedContent.push(temp);
                     }
                     addNodeToRemovalQueue(scriptElements[i]);
                 }
             }
+            loadScripts(allScripts);
             
             
             /* deferr scripts loading in body */
@@ -227,13 +226,9 @@
                     jsSrc = scriptElements[i].getAttribute('src');
                     jsCode = scriptElements[i].innerHTML;
                     if (jsSrc !== null) {
-                        temp = document.createElement('script');
-                        temp.src = jsSrc;
-                        addOnLoad.push(temp);
+                        addOnLoad.push(['src', jsSrc]);
                     } else if (jsCode !== '') {
-                        temp = document.createElement('script');
-                        temp.innerHTML = jsCode;
-                        addOnLoad.push(temp);
+                        addOnLoad.push(['code', jsCode]);
                     }
                     addNodeToRemovalQueue(scriptElements[i]);
                 }
@@ -278,16 +273,59 @@
                 loadPage(options.PAGE_404);
             }
             
-            for (var i = 0; i < addOnLoad.length; i++) {
-                document.getElementsByTagName('body')[0].appendChild(addOnLoad[i]);
-                addedContent.push(addOnLoad[i]);
-            }
+            loadScripts(addOnLoad);
             addOnLoad = [];
             
             options.onCurrentPageLoad();
         };
         
         xhr.send();
+    }
+    
+    
+    
+    function getScript(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                globalEval(xhr.responseText);
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            }
+        };
+        
+        xhr.send();
+    }
+    
+    
+    function loadScripts(scripts) {
+        if (scripts.length === 0) {
+            return;
+        }
+        
+        allScripts = [];
+        allScripts = scripts;
+        
+        miniLoadScripts(0);
+    }
+    
+    
+    function miniLoadScripts(currentIndex) {
+        if (allScripts[currentIndex][0] === 'src') {
+            getScript(allScripts[currentIndex][1], function() {
+                if (allScripts[currentIndex + 1] !== undefined) {
+                    miniLoadScripts(currentIndex + 1);
+                }
+            });
+        } else if (allScripts[currentIndex][0] === 'code') {
+            globalEval(allScripts[currentIndex][1]);
+            if (allScripts[currentIndex + 1] !== undefined) {
+                miniLoadScripts(currentIndex + 1);
+            }
+        }
     }
     
     
@@ -340,5 +378,17 @@
         } else {
             return null;
         }
+    }
+    
+    
+    
+    function globalEval(code) {
+        if (typeof console.warn === 'function') {
+            console.warn('Use of eval');
+        } else {
+            console.log('Use of eval');
+        }
+        
+        eval(code);
     }
 // }());
