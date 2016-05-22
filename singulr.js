@@ -309,6 +309,7 @@
         allScripts = [];
         allScripts = scripts;
         
+        console.log(allScripts);
         miniLoadScripts(0);
     }
     
@@ -389,6 +390,6 @@
             console.log('Use of eval');
         }
         
-        eval(code);
+        window.eval(code);
     }
 // }());
