@@ -1,11 +1,12 @@
 /*! Singulr v0.1.0 | (c) Richard Liu | MIT License */
 /*
     BUGS:
-     - 
+     - var something is not exposed to the global scope (but window.something is)
     
     FEATURES:
-     - accept seperate pages which do not follow base
+     - change url system
      - nested pages (hello/foo.html)
+     - accept seperate pages which do not follow base
      - dynamically change favicon
      
      - compress code with Google Closure (http://closure-compiler.appspot.com/home)
