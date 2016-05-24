@@ -1,7 +1,7 @@
-/*! Singulr v0.1.0 | (c) Richard Liu | MIT License */
+/*! Singulr v0.1.1 | (c) Richard Liu | MIT License */
 /*
     BUGS:
-     - var something is not exposed to the global scope (but window.something is)
+     - var something is not exposed to the global scope (but window.something is) (eval)
     
     FEATURES:
      - change url system
@@ -13,6 +13,9 @@
     
     NOTES:
      - styles applied to body aren't applied
+     - snippet needs to be added at the top of every file
+         <script id="singulr-ignore">var a=window.location.href;window.location.href='index.html?'+a.substr(a.lastIndexOf('/')+1)</script>
+     - the index.html can be changed in the above
 */
 
 
@@ -32,6 +35,7 @@
         PAGE_404: '404.html',
         PAGE_ID: 'page',
         CONTENT_ID: 'content',
+        INDEX_PAGE: 'index.html',
     };
     
     
@@ -40,27 +44,35 @@
     window.Singulr = {
         init: function (userOptions) {
             // Add user options
-            for (var option in userOptions) {
-                if (userOptions.hasOwnProperty(option) && options[option] !== undefined) {
-                    options[option] = userOptions[option];
+            if (userOptions !== undefined) {
+                for (var option in userOptions) {
+                    if (userOptions.hasOwnProperty(option) && options[option] !== undefined) {
+                        options[option] = userOptions[option];
+                    }
                 }
             }
+            
+            options.INDEX_PAGE = getPage();
             
             
             // load base on startup
             ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
-                if (getPage() !== null && getPage() !== currentPage) {
-                    loadPage(getFullPage());
+                var curFullPageUrl = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
+                curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
+                replacePage(curFullPageUrl);
+                if (curFullPageUrl.length > 0 && getPage() !== currentPage) {
+                    loadPageExternal(getFullPage());
                 } else {
                     loadPage(options.HOME_PAGE);
                 }
             });
         },
         getPage: getPage,
-        loadPage: loadPage,
+        loadPage: loadPageExternal,
         onCurrentPageLoad: function(func) {
             if (typeof func === 'function') options.onCurrentPageLoad = func; 
-        }
+        },
+        indexPage: options.INDEX_PAGE
     };
     
     
@@ -77,36 +89,38 @@
         for (var i = 0; i < elements.length; i++) {
             elements[i].addEventListener('click', onclick);
         }
-        if (window.onhashchange === null) {
-            window.onhashchange = onhashchange;
+        if (window.onpopstate === null) {
+            window.onpopstate = onpopstate;
         }
         
         
         function onclick() {
             var page = this.getAttribute('href');
             
-            
             // http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
-            // direct url
-            if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1) {
+            // absolute url
+            if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1 || page === currentPage) {
                 return;
-            }
-                
-            loadPage(page);
+            }    
+            loadPageExternal(page);
             
             event.preventDefault();
         }
         
-        function onhashchange() {
-            loadPage(getFullPage());
+        function onpopstate(event) {
+            loadPage(document.location.href.substr(document.location.href.lastIndexOf('/') + 1));
         }
     }
     
     
     
-    function loadPage(page) {
+    function loadPageExternal(page) {
         setPage(page);
-        
+        loadPage(page);
+    }
+    
+    
+    function loadPage(page) {
         var requestPage;
         if (page.search(/\?/) > -1) {
             requestPage = page.slice(0, page.search(/\?/));
@@ -204,14 +218,15 @@
                 var scriptElements = html.getElementsByTagName('head')[0].getElementsByTagName('script');
                 
                 for (var i = 0; i < scriptElements.length; i++) {
+                    if (scriptElements[i].getAttribute('id') === 'singulr-ignore') {
+                        continue;
+                    }
                     jsSrc = scriptElements[i].getAttribute('src');
                     jsCode = scriptElements[i].innerHTML;
                     if (jsSrc !== null) {
                         allScripts.push(['src', jsSrc]);
-                        addedContent.push(temp);
                     } else if (jsCode !== '') {
                         allScripts.push(['code', jsCode]);
-                        addedContent.push(temp);
                     }
                     addNodeToRemovalQueue(scriptElements[i]);
                 }
@@ -224,6 +239,9 @@
                 scriptElements = html.getElementsByTagName('body')[0].getElementsByTagName('script');
                 
                 for (var i = 0; i < scriptElements.length; i++) {
+                    if (scriptElements[i].getAttribute('id') === 'singulr-ignore') {
+                        continue;
+                    }
                     jsSrc = scriptElements[i].getAttribute('src');
                     jsCode = scriptElements[i].innerHTML;
                     if (jsSrc !== null) {
@@ -310,7 +328,6 @@
         allScripts = [];
         allScripts = scripts;
         
-        console.log(allScripts);
         miniLoadScripts(0);
     }
     
@@ -336,7 +353,11 @@
     // list of nodes has bad effects
     function addNodeToRemovalQueue(node) {
         if (node === undefined || node === null) {
-            throw new Error('No node provided');
+            if (typeof console.warn !== 'function') {
+                console.warn('No node provided');
+            } else {
+                console.log('No node provided');
+            }
         } else if (node.parentNode === null) {
             throw new Error('Node has been already removed');
         } else {
@@ -356,41 +377,47 @@
     
     
     function setPage(page) {
-        window.location.href = `${window.location.protocol}//${window.location.host + window.location.pathname}#!${page}`;
+        window.history.pushState({}, '', page);
+        console.log('setting page to: ' + page);
+    }
+    
+    function replacePage(page) {
+        window.history.replaceState({}, '', page);
     }
     
     
     function getFullPage() {
-        var hash = window.location.hash;
-        
-        return (hash[1] === '!') ? hash.slice(2) : null;
+        // matches hello.html#hello?poo=1 in:
+        /*
+            https://example.com/folder/hello.html#hello?poo=1
+        */
+        return window.location.href.substr(window.location.href.lastIndexOf("/") + 1);
     }
     
     
     function getPage() {
-        var hash = window.location.hash;
-        
-        if (hash[1] === '!') {
-            var page = hash.slice(2);
-            if (page.search(/\?/) > -1) {
-                return page.slice(0, page.search(/\?/));
-            } else {
-                return page;
-            }
-        } else {
+        // matches hello.html in:
+        /*
+            https://example.com/folder/hello.html#hello?poo=1
+            https://example.com/folder/hello.html?poo=1
+            https://example.com/folder/hello.html
+        */
+        if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
             return null;
+        } else {
+            return window.location.href.match(/\/[\w%]+\.[a-zA-Z]+(?:(?=#|\?)|$)/)[0].substr(1);
         }
     }
     
     
     
     function globalEval(code) {
-        if (typeof console.warn === 'function') {
-            console.warn('Use of eval');
-        } else {
-            console.log('Use of eval');
-        }
-        
         window.eval(code);
+    }
+    
+    
+    
+    function printStackTrace() {
+        console.log(new Error());
     }
 // }());
