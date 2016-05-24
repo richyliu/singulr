@@ -1,8 +1,7 @@
 /*! Singulr v0.1.0 | (c) Richard Liu | MIT License */
 /*
     BUGS:
-     - var something is not exposed to the global scope (but window.something is)
-     - clicking link not pushed to history
+     - var something is not exposed to the global scope (but window.something is) (eval)
     
     FEATURES:
      - change url system
@@ -60,8 +59,8 @@
             ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
                 var curFullPageUrl = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
                 curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
-                setPage(curFullPageUrl);
-                if (curFullPageUrl.indexOf('?') > -1 && getPage() !== currentPage) {
+                replacePage(curFullPageUrl);
+                if (curFullPageUrl.length > 0 && getPage() !== currentPage) {
                     loadPageExternal(getFullPage());
                 } else {
                     loadPage(options.HOME_PAGE);
@@ -90,35 +89,32 @@
         for (var i = 0; i < elements.length; i++) {
             elements[i].addEventListener('click', onclick);
         }
-        if (window.onhashchange === null) {
-            window.onhashchange = onhashchange;
+        if (window.onpopstate === null) {
+            window.onpopstate = onpopstate;
         }
         
         
         function onclick() {
             var page = this.getAttribute('href');
             
-            
             // http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
-            // direct url
-            if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1) {
+            // absolute url
+            if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1 || page === currentPage) {
                 return;
-            }
-                
+            }    
             loadPageExternal(page);
             
             event.preventDefault();
         }
         
-        function onhashchange() {
-            loadPage(getFullPage());
+        function onpopstate(event) {
+            loadPage(document.location.href.substr(document.location.href.lastIndexOf('/') + 1));
         }
     }
     
     
     
     function loadPageExternal(page) {
-        console.log('loading external page: ' + page);
         setPage(page);
         loadPage(page);
     }
@@ -334,7 +330,6 @@
         allScripts = [];
         allScripts = scripts;
         
-        console.log(allScripts);
         miniLoadScripts(0);
     }
     
@@ -384,10 +379,12 @@
     
     
     function setPage(page) {
-        console.log('setting to: ' + page);
+        window.history.pushState({}, '', page);
+        console.log('setting page to: ' + page);
+    }
+    
+    function replacePage(page) {
         window.history.replaceState({}, '', page);
-        
-        try{throw new Error()}catch(e){console.log(e);}
     }
     
     
@@ -417,12 +414,12 @@
     
     
     function globalEval(code) {
-        if (typeof console.warn === 'function') {
-            console.warn('Use of eval');
-        } else {
-            console.log('Use of eval');
-        }
-        
         window.eval(code);
+    }
+    
+    
+    
+    function printStackTrace() {
+        console.log(new Error());
     }
 // }());
