@@ -225,10 +225,8 @@
                     jsCode = scriptElements[i].innerHTML;
                     if (jsSrc !== null) {
                         allScripts.push(['src', jsSrc]);
-                        addedContent.push(temp);
                     } else if (jsCode !== '') {
                         allScripts.push(['code', jsCode]);
-                        addedContent.push(temp);
                     }
                     addNodeToRemovalQueue(scriptElements[i]);
                 }
