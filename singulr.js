@@ -403,9 +403,9 @@
             https://example.com/folder/hello.html
         */
         if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
-            return null;
+            return options.HOME_PAGE;
         } else {
-            return window.location.href.match(/\/[\w%]+\.[a-zA-Z]+(?:(?=#|\?)|$)/)[0].substr(1);
+            return window.location.href.match(/\/[\w\%\-\_]+\.[a-zA-Z]+(?:(?=#|\?)|$)/)[0].substr(1);
         }
     }
     
