@@ -1,4 +1,4 @@
-/*! Singulr v0.0.1r2 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r3 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - var something is not exposed to the global scope (but window.something is) (eval)
@@ -28,7 +28,7 @@
 */
 
 
-// (function () {
+// (function (document, window) {
     var currentPage = '';
     var addedContent = [];
     var removalQueue = [];
@@ -467,4 +467,4 @@
         s.type = 'text/css';
         document.getElementsByTagName('head')[0].appendChild(s);
     }
-// }());
+// }(document, window));
