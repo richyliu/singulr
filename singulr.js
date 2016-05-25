@@ -28,7 +28,7 @@
 */
 
 
-// (function () {
+// (function (document, window) {
     var currentPage = '';
     var addedContent = [];
     var removalQueue = [];
@@ -467,4 +467,4 @@
         s.type = 'text/css';
         document.getElementsByTagName('head')[0].appendChild(s);
     }
-// }());
+// }(document, window));
