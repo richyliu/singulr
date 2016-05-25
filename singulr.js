@@ -1,4 +1,4 @@
-/*! Singulr v0.0.1r4 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r5 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - 
@@ -13,8 +13,8 @@
     NOTES:
      - styles applied to body aren't applied
      - snippet needs to be added at the top of every file
-         <script id="singulr-ignore">var a=window.location.href;window.location.href='index.html?'+a.substr(a.lastIndexOf('/')+1)</script>
-     - the index.html can be changed in the above
+         <script id="singulr-ignore">var a=window.location.href;window.location.href='/index.html?'+encodeURIComponent(a.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1))</script>
+                                                                        root url------^^^^^^^^^^^^
      - INDEX_PATH must be followed by a /. Ex:
          Valid:
              /foo/
@@ -75,6 +75,7 @@
             ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
                 var curFullPageUrl = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
                 curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
+                curFullPageUrl = decodeURIComponent(curFullPageUrl);
                 console.log('startup url: ' + curFullPageUrl);
                 replacePage(curFullPageUrl);
                 if (curFullPageUrl.length > 0 && getPageWithFolder() !== currentPage) {
@@ -115,7 +116,7 @@
             
             // http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
             // absolute url
-            if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1 || options.INDEX_PATH + page === currentPage) {
+            if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1 || page === currentPage) {
                 return;
             }    
             loadPageExternal(page);
@@ -137,7 +138,7 @@
     
     
     function loadPage(page) {
-        currentPage = options.INDEX_PATH + page;
+        currentPage = page;
         printStackTrace();
         
         try {

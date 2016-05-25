@@ -9,16 +9,20 @@
         
         <!-- Auto redirect to https -->
         <script>var a=window.location;"https:"!==a.protocol&&(a.href="https:"+a.href.substring(a.protocol.length));</script>
-        
-        <style>
-            .current {
-                color: orange;
-            }
-        </style>
     </head>
     
     <body>
-        <div id="page"></div>
+        <div id="wrapper">
+            <div id="loader-wrapper">
+                <div id="loader">
+                    
+                </div>
+                
+                <div class="loader-section section-left"></div>
+                <div class="loader-section section-right"></div>
+            </div>
+            <div id="page"></div>
+        </div>
         
         <div id="swipe-to"></div>
         
