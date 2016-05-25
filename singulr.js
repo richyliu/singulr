@@ -4,7 +4,7 @@
      - var something is not exposed to the global scope (but window.something is) (eval)
     
     FEATURES:
-     - nested pages (hello/foo.html)
+     - loading screen and defer loading of unnecessary css
      - accept seperate pages which do not follow base
      - dynamically change favicon
      
@@ -196,7 +196,7 @@
                 
                 for (var i = 0; i < styleElements.length; i++) {
                     cssCode = styleElements[i].innerHTML;
-                    if (cssCode !== '' && styleElements[i].getAttribute('rel') === 'stylesheet') {
+                    if (cssCode !== '') {
                         temp = document.createElement('style');
                         temp.innerHTML = cssCode;
                         document.getElementsByTagName('head')[0].appendChild(temp);
@@ -210,13 +210,15 @@
                 var linkElements = html.getElementsByTagName('link');
                 
                 for (var i = 0; i < linkElements.length; i++) {
-                    cssSrc = linkElements[i].getAttribute('href');
-                    temp = document.createElement('link');
-                    temp.rel = 'stylesheet';
-                    temp.type = 'text/css';
-                    temp.href = cssSrc;
-                    document.getElementsByTagName('head')[0].appendChild(temp);
-                    addedContent.push(temp);
+                    if (linkElements[i].getAttribute('rel') === 'stylesheet') {
+                        cssSrc = linkElements[i].getAttribute('href');
+                        temp = document.createElement('link');
+                        temp.rel = 'stylesheet';
+                        temp.type = 'text/css';
+                        temp.href = cssSrc;
+                        document.getElementsByTagName('head')[0].appendChild(temp);
+                        addedContent.push(temp);
+                    }
                     
                     addNodeToRemovalQueue(linkElements[i]);
                 }
@@ -454,5 +456,15 @@
         } else {
             console.log((new Error()).stack);
         }
+    }
+    
+    
+    
+    function loadStyleSheet(src) {
+        var s = document.createElement('link');
+        s.href = src;
+        s.rel = 'stylesheet';
+        s.type = 'text/css';
+        document.getElementsByTagName('head')[0].appendChild(s);
     }
 // }());
