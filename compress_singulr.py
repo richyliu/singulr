@@ -1,13 +1,21 @@
 #!/usr/bin/env python
 
-import httplib, urllib, sys
+import httplib, urllib, sys, re
 
 
 
-filename = sys.argv[1]
-f = open(filename, 'r+')
+f = open('singulr.js', 'r')
 
 code = f.read()
+
+f.close()
+
+
+# make code production ready
+code = re.sub('// \(function \(document, window\) \{', '(function (document, window) {', code)
+code = re.sub('// \}\(document, window\)\);', '}(document, window));', code)
+
+print(code)
 
 
 # Define the parameters for the POST request and encode them in a URL-safe format.
@@ -28,15 +36,20 @@ conn.request('POST', '/compile', params, headers)
 response = conn.getresponse()
 data = response.read()
 
+conn.close()
+
 
 print(data)
 
-f.seek(0)
-f.write(data)
-f.truncate()
+
+w = open('singulr.min.js', 'r+')
+
+w.seek(0)
+w.write(data)
+w.truncate()
+
+w.close()
 
 
 
-conn.close()
 
-f.close()
