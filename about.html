@@ -4,20 +4,7 @@
     <script id="singulr-ignore">var a=window.location.href;window.location.href='index.html?'+a.substr(a.lastIndexOf('/')+1)</script>
     
     <title>About</title>
-
-    <link rel="stylesheet" href="css/temp.css" type="text/css"></link>
-    <link rel="stylesheet" href="css/foo.css" type="text/css"></link>
-
-    <style>
-        body {
-            margin: 0px;
-        }
-    </style>
-    <style>
-        #21 {
-            margin: 0px;
-        }
-    </style>
+    
 </head>
 
 <body>
@@ -25,6 +12,7 @@
 
     <p>Singular was made to load pages faster using ajax. Singulr only loads the parts of the page that has been changed. This way, pages can be loaded faster.</p>
 
+    <button onclick="clicked();">click me!</button>
 
     <script>
         console.log('1st');
@@ -32,6 +20,9 @@
     <script src="js/test.js"></script>
     <script>
         console.log('3rd');
+        function clicked() {
+            alert('You clicked it!');
+        }
     </script>
 </body>
 

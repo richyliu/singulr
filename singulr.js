@@ -1,7 +1,7 @@
-/*! Singulr v0.0.1r3 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r4 | (c) Richard Liu | MIT License */
 /*
     BUGS:
-     - var something is not exposed to the global scope (but window.something is) (eval)
+     - 
     
     FEATURES:
      - loading screen and defer loading of unnecessary css
@@ -115,7 +115,7 @@
             
             // http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
             // absolute url
-            if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1 || page === currentPage) {
+            if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1 || options.INDEX_PATH + page === currentPage) {
                 return;
             }    
             loadPageExternal(page);
@@ -444,8 +444,11 @@
     
     
     
-    function globalEval(code) {
-        window.eval(code);
+    
+    function globalEval(data) {
+        (function(data) {
+            window['eval'].call(window, data);
+        })(data);
     }
     
     
