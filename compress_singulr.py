@@ -44,7 +44,17 @@ print(data)
 
 w = open('singulr.min.js', 'r+')
 
+# Read in the file once and build a list of line offsets
+line_offset = []
+offset = 0
+for line in w:
+    line_offset.append(offset)
+    offset += len(line)
 w.seek(0)
+
+# Now, to skip to line n (with the first line being line 0), just do
+w.seek(line_offset[28])
+
 w.write(data)
 w.truncate()
 
