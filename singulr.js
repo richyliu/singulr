@@ -1,7 +1,7 @@
-/*! Singulr v0.0.1r3 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r4 | (c) Richard Liu | MIT License */
 /*
     BUGS:
-     - var something is not exposed to the global scope (but window.something is) (eval)
+     - 
     
     FEATURES:
      - loading screen and defer loading of unnecessary css
