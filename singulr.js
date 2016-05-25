@@ -1,10 +1,9 @@
-/*! Singulr v0.1.1 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r1 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - var something is not exposed to the global scope (but window.something is) (eval)
     
     FEATURES:
-     - change url system
      - nested pages (hello/foo.html)
      - accept seperate pages which do not follow base
      - dynamically change favicon
@@ -16,6 +15,16 @@
      - snippet needs to be added at the top of every file
          <script id="singulr-ignore">var a=window.location.href;window.location.href='index.html?'+a.substr(a.lastIndexOf('/')+1)</script>
      - the index.html can be changed in the above
+     - INDEX_PATH must be followed by a /. Ex:
+         Valid:
+             /foo/
+             /foo/bar/
+             / (default)
+         Invalid:
+             /foo
+             bar/
+              (empty string)
+    
 */
 
 
@@ -35,7 +44,16 @@
         PAGE_404: '404.html',
         PAGE_ID: 'page',
         CONTENT_ID: 'content',
-        INDEX_PAGE: 'index.html',
+        INDEX_PATH: '/'
+    };
+    
+    
+    String.prototype.allIndexOf = function (lookFor) {
+        var indices = [];
+        for (var i = 0; i < this.length; i++) {
+            if (this[i] === lookFor) indices.push(i);
+        }
+        return indices;
     };
     
     
@@ -52,27 +70,25 @@
                 }
             }
             
-            options.INDEX_PAGE = getPage();
-            
             
             // load base on startup
             ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
                 var curFullPageUrl = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
                 curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
+                console.log('startup url: ' + curFullPageUrl);
                 replacePage(curFullPageUrl);
-                if (curFullPageUrl.length > 0 && getPage() !== currentPage) {
-                    loadPageExternal(getFullPage());
+                if (curFullPageUrl.length > 0 && getPageWithFolder() !== currentPage) {
+                    loadPageExternal(curFullPageUrl);
                 } else {
                     loadPage(options.HOME_PAGE);
                 }
             });
         },
-        getPage: getPage,
+        getPage: getPageWithFolder,
         loadPage: loadPageExternal,
         onCurrentPageLoad: function(func) {
             if (typeof func === 'function') options.onCurrentPageLoad = func; 
-        },
-        indexPage: options.INDEX_PAGE
+        }
     };
     
     
@@ -121,21 +137,16 @@
     
     
     function loadPage(page) {
-        var requestPage;
-        if (page.search(/\?/) > -1) {
-            requestPage = page.slice(0, page.search(/\?/));
-        } else {
-            requestPage = page;
-        }
-        if (requestPage === currentPage) return;
-        currentPage = requestPage;
+        currentPage = options.INDEX_PATH + page;
+        printStackTrace();
         
         try {
-            ajaxLoad(options.CONTENT_ID, requestPage, callback);
+            ajaxLoad(options.CONTENT_ID, currentPage, callback);
         } catch (e) {
             console.error(e);
             loadPage(options.PAGE_404);
         }
+        
         
         function callback (response) {
             // remove previous page's js and css
@@ -289,7 +300,7 @@
                 }
                 options.onPageLoaded();
             } else if (xhr.status === 404) {
-                loadPage(options.PAGE_404);
+                // loadPage(options.PAGE_404);
             }
             
             loadScripts(addOnLoad);
@@ -378,7 +389,6 @@
     
     function setPage(page) {
         window.history.pushState({}, '', page);
-        console.log('setting page to: ' + page);
     }
     
     function replacePage(page) {
@@ -396,17 +406,38 @@
     
     
     function getPage() {
-        // matches hello.html in:
+        if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
+            return options.HOME_PAGE;
+        } else {
+            // matches hello.html in:
+            /*
+                https://example.com/folder/hello.html#hello?poo=1
+                https://example.com/folder/hello.html?poo=1
+                https://example.com/folder/hello.html
+            */
+            return window.location.href.match(/\/[\w\%\-\_]+\.[a-zA-Z]+(?:(?=#|\?)|$)/)[0].substr(1);
+        }
+    }
+    
+    
+    function getPageWithFolder() {
+        if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
+            return options.HOME_PAGE;
+        } else {
+            return getPageWithFolderFromFullUrl(window.location.href);
+        }
+    }
+    
+    
+    function getPageWithFolderFromFullUrl(fullUrl) {
+        console.log('full url: ' + fullUrl);
+        // matches /folder/hello.html in:
         /*
             https://example.com/folder/hello.html#hello?poo=1
             https://example.com/folder/hello.html?poo=1
             https://example.com/folder/hello.html
         */
-        if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
-            return options.HOME_PAGE;
-        } else {
-            return window.location.href.match(/\/[\w\%\-\_]+\.[a-zA-Z]+(?:(?=#|\?)|$)/)[0].substr(1);
-        }
+        return fullUrl.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1);
     }
     
     
@@ -418,6 +449,10 @@
     
     
     function printStackTrace() {
-        console.log(new Error());
+        if (typeof console.warn === 'function') {
+            console.warn((new Error()).stack);
+        } else {
+            console.log((new Error()).stack);
+        }
     }
 // }());
