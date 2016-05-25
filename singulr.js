@@ -13,8 +13,8 @@
     NOTES:
      - styles applied to body aren't applied
      - snippet needs to be added at the top of every file
-         <script id="singulr-ignore">var a=window.location.href;window.location.href='/singulr/index.html?'+encodeURIComponent(a.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1))</script>
-                                                                        root url------^^^^^^^^^^^^^^^^^^^
+         <script id="singulr-ignore">var a=window.location.href;window.location.href='/index.html?'+encodeURIComponent(a.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1))</script>
+                                                                        root url------^^^^^^^^^^^^
      - INDEX_PATH must be followed by a /. Ex:
          Valid:
              /foo/
