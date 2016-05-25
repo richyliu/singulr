@@ -367,11 +367,7 @@
     // list of nodes has bad effects
     function addNodeToRemovalQueue(node) {
         if (node === undefined || node === null) {
-            if (typeof console.warn !== 'function') {
-                console.warn('No node provided');
-            } else {
-                console.log('No node provided');
-            }
+            console.warn('No node provided!');
         } else if (node.parentNode === null) {
             throw new Error('Node has been already removed');
         } else {
@@ -455,11 +451,7 @@
     
     
     function printStackTrace() {
-        if (typeof console.warn === 'function') {
-            console.warn((new Error()).stack);
-        } else {
-            console.log((new Error()).stack);
-        }
+        console.warn((new Error()).stack);
     }
     
     
