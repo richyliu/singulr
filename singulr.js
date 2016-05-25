@@ -1,4 +1,4 @@
-/*! Singulr v0.0.1r1 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r2 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - var something is not exposed to the global scope (but window.something is) (eval)
@@ -302,7 +302,7 @@
                 }
                 options.onPageLoaded();
             } else if (xhr.status === 404) {
-                // loadPage(options.PAGE_404);
+                loadPage(options.PAGE_404);
             }
             
             loadScripts(addOnLoad);
