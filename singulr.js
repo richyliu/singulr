@@ -15,15 +15,7 @@
      - snippet needs to be added at the top of every file
          <script id="singulr-ignore">var a=window.location.href;window.location.href='/index.html?'+encodeURIComponent(a.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1))</script>
                                                                         root url------^^^^^^^^^^^^
-     - INDEX_PATH must be followed by a /. Ex:
-         Valid:
-             /foo/
-             /foo/bar/
-             / (default)
-         Invalid:
-             /foo
-             bar/
-              (empty string)
+     - dependencies must be urls
     
 */
 
@@ -38,13 +30,17 @@
     var options = {
         onPageLoaded: function() {},
         onCurrentPageLoad: function() {},
+        onDependenciesLoaded: function() {},
         analyticNodes: [],
         HOME_PAGE: 'home.html',
         BASE_PAGE: 'base.html',
         PAGE_404: '404.html',
         PAGE_ID: 'page',
         CONTENT_ID: 'content',
-        INDEX_PATH: '/'
+        dependencies: {
+            javascript: [],
+            css: []
+        }
     };
     
     
@@ -71,19 +67,48 @@
             }
             
             
-            // load base on startup
-            ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
-                var curFullPageUrl = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
-                curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
-                curFullPageUrl = decodeURIComponent(curFullPageUrl);
-                console.log('startup url: ' + curFullPageUrl);
-                replacePage(curFullPageUrl);
-                if (curFullPageUrl.length > 0 && getPageWithFolder() !== currentPage) {
-                    loadPageExternal(curFullPageUrl);
-                } else {
-                    loadPage(options.HOME_PAGE);
+            // load dependencies
+            
+            // javascript
+            var javascriptDependencies = [];
+            for (var i = 0; i < options.dependencies.javascript.length; i++) {
+                javascriptDependencies.push(['src', options.dependencies.javascript[i]]);
+            }
+            loadScripts(javascriptDependencies, function() {
+                // css
+                var styleDependencies = options.dependencies.css;
+                var loadedCss = [];
+                console.log(loadedCss);
+                var curStylesheet;
+                for (var i = 0; i < styleDependencies.length; i++) {
+                    curStylesheet = loadCSS(styleDependencies[i]);
+                    onloadCSS(curStylesheet, function() {
+                        loadedCss[i] = true;
+                        // if there still is unloaded css
+                        for (var i = 0; i < loadedCss.length; i++) {
+                            if (loadedCss[i] === false) return;
+                        }
+                        
+                        // all css (and javascript) loaded
+                        options.onDependenciesLoaded();
+                        
+                        // load base and page
+                        ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
+                            var curFullPageUrl = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
+                            curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
+                            curFullPageUrl = decodeURIComponent(curFullPageUrl);
+                            replacePage(curFullPageUrl);
+                            if (curFullPageUrl.length > 0 && getPageWithFolder() !== currentPage) {
+                                loadPageExternal(curFullPageUrl);
+                            } else {
+                                loadPage(options.HOME_PAGE);
+                            }
+                        });
+                    });
                 }
             });
+            
+            
         },
         getPage: getPageWithFolder,
         loadPage: loadPageExternal,
@@ -139,7 +164,6 @@
     
     function loadPage(page) {
         currentPage = page;
-        printStackTrace();
         
         try {
             ajaxLoad(options.CONTENT_ID, currentPage, callback);
@@ -334,29 +358,35 @@
     }
     
     
-    function loadScripts(scripts) {
+    function loadScripts(scripts, callback) {
         if (scripts.length === 0) {
             return;
         }
+        callback = callback || function() {};
+        console.log(scripts);
         
         allScripts = [];
         allScripts = scripts;
         
-        miniLoadScripts(0);
+        miniLoadScripts(0, callback);
     }
     
     
-    function miniLoadScripts(currentIndex) {
+    function miniLoadScripts(currentIndex, callback) {
         if (allScripts[currentIndex][0] === 'src') {
             getScript(allScripts[currentIndex][1], function() {
                 if (allScripts[currentIndex + 1] !== undefined) {
-                    miniLoadScripts(currentIndex + 1);
+                    miniLoadScripts(currentIndex + 1, callback);
+                } else {
+                    callback();
                 }
             });
         } else if (allScripts[currentIndex][0] === 'code') {
             globalEval(allScripts[currentIndex][1]);
             if (allScripts[currentIndex + 1] !== undefined) {
-                miniLoadScripts(currentIndex + 1);
+                miniLoadScripts(currentIndex + 1, callback);
+            } else {
+                callback();
             }
         }
     }
@@ -456,11 +486,103 @@
     
     
     
-    function loadStyleSheet(src) {
-        var s = document.createElement('link');
-        s.href = src;
-        s.rel = 'stylesheet';
-        s.type = 'text/css';
-        document.getElementsByTagName('head')[0].appendChild(s);
+    /*! loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
+    var loadCSS = function(href, before, media) {
+        // Arguments explained:
+        // 'href' [REQUIRED] is the URL for your CSS file.
+        // 'before' [OPTIONAL] is the element the script should use as a reference for injecting our stylesheet <link> before
+        // By default, loadCSS attempts to inject the link after the last stylesheet or script in the DOM. However, you might desire a more specific location in your document.
+        // 'media' [OPTIONAL] is the media type or query of the stylesheet. By default it will be 'all'
+        var doc = window.document;
+        var ss = doc.createElement("link");
+        var ref;
+        if (before) {
+            ref = before;
+        } else {
+            var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+            ref = refs[refs.length - 1];
+        }
+
+        var sheets = doc.styleSheets;
+        ss.rel = "stylesheet";
+        ss.href = href;
+        // temporarily set media to something inapplicable to ensure it'll fetch without blocking render
+        ss.media = "only x";
+
+        // wait until body is defined before injecting link. This ensures a non-blocking load in IE11.
+        function ready(cb) {
+            if (doc.body) {
+                return cb();
+            }
+            setTimeout(function() {
+                ready(cb);
+            });
+        }
+        // Inject link
+        // Note: the ternary preserves the existing behavior of "before" argument, but we could choose to change the argument to "after" in a later release and standardize on ref.nextSibling for all refs
+        // Note: 'insertBefore' is used instead of 'appendChild', for safety re: http://www.paulirish.com/2011/surefire-dom-element-insertion/
+        ready(function() {
+            ref.parentNode.insertBefore(ss, (before ? ref : ref.nextSibling));
+        });
+        // A method (exposed on return object for external use) that mimics onload by polling until document.styleSheets until it includes the new sheet.
+        var onloadcssdefined = function(cb) {
+            var resolvedHref = ss.href;
+            var i = sheets.length;
+            while (i--) {
+                if (sheets[i].href === resolvedHref) {
+                    return cb();
+                }
+            }
+            setTimeout(function() {
+                onloadcssdefined(cb);
+            });
+        };
+
+        function loadCB() {
+            if (ss.addEventListener) {
+                ss.removeEventListener("load", loadCB);
+            }
+            ss.media = media || "all";
+        }
+
+        // once loaded, set link's media back to 'all' so that the stylesheet applies once it loads
+        if (ss.addEventListener) {
+            ss.addEventListener("load", loadCB);
+        }
+        ss.onloadcssdefined = onloadcssdefined;
+        onloadcssdefined(loadCB);
+        return ss;
+    };
+    
+    
+    /*! onloadCSS: adds onload support for asynchronous stylesheets loaded with loadCSS. [c]2016 @zachleat, Filament Group, Inc. Licensed MIT */
+    /* global navigator */
+    /* exported onloadCSS */
+    function onloadCSS( ss, callback ) {
+    	var called;
+    	function newcb(){
+    			if( !called && callback ){
+    				called = true;
+    				callback.call( ss );
+    			}
+    	}
+    	if( ss.addEventListener ){
+    		ss.addEventListener( "load", newcb );
+    	}
+    	if( ss.attachEvent ){
+    		ss.attachEvent( "onload", newcb );
+    	}
+    
+    	// This code is for browsers that don’t support onload
+    	// No support for onload (it'll bind but never fire):
+    	//	* Android 4.3 (Samsung Galaxy S4, Browserstack)
+    	//	* Android 4.2 Browser (Samsung Galaxy SIII Mini GT-I8200L)
+    	//	* Android 2.3 (Pantech Burst P9070)
+    
+    	// Weak inference targets Android < 4.4
+     	if( "isApplicationInstalled" in navigator && "onloadcssdefined" in ss ) {
+    		ss.onloadcssdefined( newcb );
+    	}
     }
+    
 // }(document, window));

@@ -2,6 +2,8 @@
 
 import httplib, urllib, sys, re
 
+# TODO: REMOVE CONSOLE.LOG AND CONSOLE.WARN
+
 
 
 f = open('singulr.js', 'r')
