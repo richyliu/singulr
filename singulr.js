@@ -4,6 +4,7 @@
      - 
     
     FEATURES:
+     - load fonts
      - load scripts in parallel
      - accept seperate pages which do not follow base
      - dynamically change favicon
