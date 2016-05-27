@@ -5,8 +5,6 @@
         
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
         
-        <!--<link rel="stylesheet" href="css/stylesheet.css" type="text/css">-->
-        
         <!-- Auto redirect to https -->
         <script>var a=window.location;"https:"!==a.protocol&&(a.href="https:"+a.href.substring(a.protocol.length));</script>
     </head>
@@ -50,13 +48,13 @@
         <!-- Singulr -->
         <script src="singulr.js"></script>
         
-        <!-- Slideback -->
-        <!--<script src="https://rawgit.com/richyliu/slideback/gh-pages/slideback.js"></script>-->
-        
         <script>
             /* global Singulr */
             /* global Slideback */
             
+            
+            // milliseconds
+            var start = Date.now();
             
             Singulr.init({
                 onPageLoaded: function() {
@@ -74,11 +72,22 @@
                     }
                 },
                 dependencies: {
+                    // Slideback
                     javascript: ['https://rawgit.com/richyliu/slideback/gh-pages/slideback.js'],
                     css: ['css/stylesheet.css']
                 },
                 onDependenciesLoaded: function() {
                     Slideback();
+                    
+                    var now = Date.now();
+                    // less than 1 second
+                    if (now - start < 1000) {
+                        setTimeout(function() {
+                            document.getElementsByTagName('body')[0].classList.add('loaded');
+                        }, 1000 - (now - start));
+                    } else {
+                        document.getElementsByTagName('body')[0].classList.add('loaded');
+                    }
                 }
             });
         </script>

@@ -4,17 +4,15 @@
      - 
     
     FEATURES:
-     - loading screen and defer loading of unnecessary css
+     - load scripts in parallel
      - accept seperate pages which do not follow base
      - dynamically change favicon
-     
-     - compress code with Google Closure (http://closure-compiler.appspot.com/home)
     
     NOTES:
      - styles applied to body aren't applied
      - snippet needs to be added at the top of every file
          <script id="singulr-ignore">var a=window.location.href;window.location.href='/index.html?'+encodeURIComponent(a.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1))</script>
-                                                                        root url------^^^^^^^^^^^^
+                                                home(where you put singulr.js) url----^^^^^^^^^^^^
      - dependencies must be urls
     
 */
@@ -486,6 +484,7 @@
     
     
     
+    // https://github.com/filamentgroup/loadCSS
     /*! loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
     var loadCSS = function(href, before, media) {
         // Arguments explained:
