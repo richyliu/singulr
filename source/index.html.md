@@ -1,13 +1,10 @@
 ---
-title: API Reference
+title: Singulr API Reference
 
-language_tabs:
-  - shell
-  - ruby
-  - python
+languages:
+  - javascript
 
 toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
   - <a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a>
 
 includes:
@@ -24,39 +21,30 @@ We have language bindings in Shell, Ruby, and Python! You can view code examples
 
 This example API documentation page was created with [Slate](https://github.com/tripit/slate). Feel free to edit it and use it as a base for your own API's documentation.
 
-# Authentication
 
-> To authorize, use this code:
 
-```ruby
-require 'kittn'
+# Constructor
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
+```javasrcipt
+Singulr.init(options)
 ```
 
-```python
-import kittn
+### Options
 
-api = kittn.authorize('meowmeowmeow')
-```
-
-```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
-```
-
-> Make sure to replace `meowmeowmeow` with your API key.
-
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
-
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
-
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+Parameter | Description
+--------- | ------------
+onPageLoaded | A function that fires when the the current page has been loaded
+onDependenciesLoaded | A function that fires when the dependencies have been loaded, but the current page hasn't been loaded yet
+analyticNodes | A list of DOM nodes that are added every time a page is loaded (for things like Google Analytics)
+HOME_PAGE | A string representing the home page, which is loaded when the user visits the index.html directly (default: `home.html`)
+BASE_PAGE | A string representing the base page, which includes things like the navbar and footer and is loaded on every page (default: `base.html`)
+PAGE_404 | A string representing the 404 page, which is loaded when the page the user is looking for isn't found (default: `404.html`)
+PAGE_ID | A string representing the id of the div which the base is loaded into (default: `page`)
+CONTENT_ID | A string representing the id of the div which the actual page is loaded into (default: `content`)
+<aside class="warning">
+  The CONTENT_ID div is inside the base, not the index file.
 </aside>
+
 
 # Kittens
 
@@ -120,25 +108,6 @@ Remember — a happy kitten is an authenticated kitten!
 </aside>
 
 ## Get a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
-```
 
 > The above command returns JSON structured like this:
 
