@@ -7,9 +7,6 @@ languages:
 toc_footers:
   - <a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a>
 
-includes:
-  - errors
-
 search: true
 ---
 
@@ -23,17 +20,25 @@ This example API documentation page was created with [Slate](https://github.com/
 
 
 
-# Constructor
+# Singulr
+
+## init
+
+> See the table to the right for all possible options
 
 ```javasrcipt
 Singulr.init(options)
 ```
 
+Run `Singulr.init(options)` to load up Singulr. Note that Singulr.init() **does not** return anything, so only one
+Singulr can be used on one index page.
+
 ### Options
 
-Parameter | Description
+Option | Description
 --------- | ------------
-onPageLoaded | A function that fires when the the current page has been loaded
+onDocumentPageLoaded | A function that fires when everything except the scripts have been loaded (on a page)
+onPageLoaded | A function that fires when the everything have been loaded (on a page)
 onDependenciesLoaded | A function that fires when the dependencies have been loaded, but the current page hasn't been loaded yet
 analyticNodes | A list of DOM nodes that are added every time a page is loaded (for things like Google Analytics)
 HOME_PAGE | A string representing the home page, which is loaded when the user visits the index.html directly (default: `home.html`)
@@ -41,97 +46,53 @@ BASE_PAGE | A string representing the base page, which includes things like the 
 PAGE_404 | A string representing the 404 page, which is loaded when the page the user is looking for isn't found (default: `404.html`)
 PAGE_ID | A string representing the id of the div which the base is loaded into (default: `page`)
 CONTENT_ID | A string representing the id of the div which the actual page is loaded into (default: `content`)
+dependencies | <ul><li><code>javascript</code>: list of javascript file urls to be loaded</li><li><code>css</code>: list of css file urls to be loaded</li></ul>
+
 <aside class="warning">
-  The CONTENT_ID div is inside the base, not the index file.
+  The `CONTENT_ID` div is inside the base, not the index file.
 </aside>
 
 
-# Kittens
+## getPage
 
-## Get All Kittens
+> Log the current page to the console
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
+```
+console.log(Singulr.getPage());
 ```
 
-```python
-import kittn
+Returns the current page (returns the home page if currently on index)
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
+
+## loadPage
+
+> Go to about.html
+
+```
+Singulr.loadPage('about.html')
 ```
 
-```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
-```
-
-> The above command returns JSON structured like this:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
-```
-
-This endpoint retrieves all kittens.
-
-### HTTP Request
-
-`GET http://example.com/api/kittens`
-
-### Query Parameters
-
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
-
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-
-## Get a Specific Kitten
-
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
-}
-```
-
-This endpoint retrieves a specific kitten.
-
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
-
-### HTTP Request
-
-`GET http://example.com/kittens/<ID>`
-
-### URL Parameters
+Usage: `Singulr.loadPage(page);`
 
 Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
+----------|------------
+page | Takes a string page as an input, and loads the page, similar to clicking a link on a page
 
+
+
+# Installation Guide
+
+## Add Singulr
+
+> Add this code to the bottom of the body
+
+Start off by adding singulr.min.js to your website
+
+
+
+# Terminology
+
+## Page
+
+The word `page` is used to describe a page that is loaded every time you click a
+link or use Singulr.loadPage() to load a page
