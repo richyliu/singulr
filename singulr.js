@@ -1,9 +1,10 @@
-/*! Singulr v0.0.1r5 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r6 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - 
     
     FEATURES:
+     - load fonts
      - load scripts in parallel
      - accept seperate pages which do not follow base
      - dynamically change favicon
@@ -26,8 +27,8 @@
     var allScripts = [];
     
     var options = {
+        onDocumentLoaded: function() {},
         onPageLoaded: function() {},
-        onCurrentPageLoad: function() {},
         onDependenciesLoaded: function() {},
         analyticNodes: [],
         HOME_PAGE: 'home.html',
@@ -110,9 +111,6 @@
         },
         getPage: getPageWithFolder,
         loadPage: loadPageExternal,
-        onCurrentPageLoad: function(func) {
-            if (typeof func === 'function') options.onCurrentPageLoad = func; 
-        }
     };
     
     
@@ -323,7 +321,7 @@
                 } else {
                     throw new Error('Invalid callback return!');
                 }
-                options.onPageLoaded();
+                options.onDocumentLoaded();
             } else if (xhr.status === 404) {
                 loadPage(options.PAGE_404);
             }
@@ -331,7 +329,7 @@
             loadScripts(addOnLoad);
             addOnLoad = [];
             
-            options.onCurrentPageLoad();
+            options.onPageLoaded();
         };
         
         xhr.send();
