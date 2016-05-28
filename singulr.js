@@ -5,7 +5,6 @@
     
     FEATURES:
      - load fonts
-     - load scripts in parallel
      - accept seperate pages which do not follow base
      - dynamically change favicon
     
@@ -337,20 +336,16 @@
     
     
     
-    function getScript(url, callback) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                globalEval(xhr.responseText);
-                if (typeof callback === 'function') {
-                    callback();
-                }
-            }
+    function getScript(source, callback) {
+        var script = document.createElement('script');
+        script.async = 1;
+        script.onload = script.onreadystatechange = function() {
+            callback();
+            script.parentNode.removeChild(script);
         };
+        script.src = source;
         
-        xhr.send();
+        document.getElementsByTagName('body')[0].appendChild(script);
     }
     
     
