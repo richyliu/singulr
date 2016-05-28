@@ -100,7 +100,7 @@
             
             
         },
-        getPage: getPageWithFolder,
+        getPage: getFullPageWithFolder,
         loadPage: loadPageExternal,
     };
     
@@ -144,7 +144,7 @@
     
     
     function loadPageExternal(page) {
-        console.log('loading: ' + page)
+        console.log('loading: ' + page);
         setPage(page);
         loadPage(page);
     }
@@ -415,19 +415,32 @@
         if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
             return '/' + options.HOME_PAGE;
         } else {
-            return getPageWithFolderFromFullUrl(window.location.href);
+            // matches /folder/hello.html in:
+            /*
+                https://example.com/folder/hello.html#hello?poo=1
+                https://example.com/folder/hello.html?poo=1
+                https://example.com/folder/hello.html
+            */
+            return window.location.href.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1);
         }
     }
     
     
-    function getPageWithFolderFromFullUrl(fullUrl) {
-        // matches /folder/hello.html in:
-        /*
-            https://example.com/folder/hello.html#hello?poo=1
-            https://example.com/folder/hello.html?poo=1
-            https://example.com/folder/hello.html
-        */
-        return fullUrl.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1);
+    function getFullPageWithFolder() {
+        // index page
+        if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
+            return '/' + options.HOME_PAGE;
+        } else {
+            /*
+                https://example.com/folder/hello.html#hello?poo=1
+                    match /folder/hello.html#hello?poo=1
+                https://example.com/folder/hello.html?poo=1
+                    match /folder/hello.html?poo=1
+                https://example.com/folder/hello.html
+                    match /folder/hello.html
+            */
+            return window.location.href.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+.*$/)[0].substr(1);
+        }
     }
     
     
