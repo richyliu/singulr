@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Singulr API Reference</title>
+    <title>Singulr Documentation</title>
 
     <style>
       .highlight table td { padding: 5px; }
@@ -110,6 +110,7 @@
       </div>
         <ul class="toc-footer">
             <li><a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a></li>
+            <li><p>Beta v0.0.1r5</p></li>
         </ul>
     </div>
     <div class="page-wrapper">
@@ -117,11 +118,11 @@
       <div class="content">
         <h1 id="introduction">Introduction</h1>
 
-<p>Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.</p>
+<p>Welcome to Singulr! Singulr is a javascript library that loads only the part of
+a web page that changes, improving performance.</p>
 
-<p>We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.</p>
-
-<p>This example API documentation page was created with <a href="https://github.com/tripit/slate">Slate</a>. Feel free to edit it and use it as a base for your own API&rsquo;s documentation.</p>
+<p>This documentation is divided into 2 parts: functions accessable by the Singulr
+global variable, and how to install and use Singulr on your website.</p>
 
 <h1 id="singulr">Singulr</h1>
 
@@ -130,11 +131,11 @@
 <blockquote>
 <p>See the table to the right for all possible options</p>
 </blockquote>
-<pre class="highlight plaintext"><code>Singulr.init(options)
+<pre class="highlight javascript"><code><span class="nx">Singulr</span><span class="p">.</span><span class="nx">init</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
 </code></pre>
 
 <p>Run <code class="prettyprint">Singulr.init(options)</code> to load up Singulr. Note that Singulr.init() <strong>does not</strong> return anything, so only one
-Singulr can be used on one index page.</p>
+Singulr can only be used on one <a href="#index-page">index page</a>.</p>
 
 <h3 id="options">Options</h3>
 
@@ -146,31 +147,31 @@ Singulr can be used on one index page.</p>
 </thead><tbody>
 <tr>
 <td>onDocumentPageLoaded</td>
-<td>A function that fires when everything except the scripts have been loaded (on a page)</td>
+<td>A function that fires when everything except the scripts have been loaded (on a <a href="#page">page</a>)</td>
 </tr>
 <tr>
 <td>onPageLoaded</td>
-<td>A function that fires when the everything have been loaded (on a page)</td>
+<td>A function that fires when the everything have been loaded (on a <a href="#page">page</a>)</td>
 </tr>
 <tr>
 <td>onDependenciesLoaded</td>
-<td>A function that fires when the dependencies have been loaded, but the current page hasn&rsquo;t been loaded yet</td>
+<td>A function that fires when the dependencies have been loaded, but the current <a href="#page">page</a> hasn&rsquo;t been loaded yet</td>
 </tr>
 <tr>
 <td>analyticNodes</td>
-<td>A list of DOM nodes that are added every time a page is loaded (for things like Google Analytics)</td>
+<td>A list of DOM nodes that are added every time a <a href="#page">page</a> is loaded (for things like Google Analytics)</td>
 </tr>
 <tr>
 <td>HOME_PAGE</td>
-<td>A string representing the home page, which is loaded when the user visits the index.html directly (default: <code class="prettyprint">home.html</code>)</td>
+<td>A string representing the home <a href="#page">page</a>, which is loaded when the user visits the <a href="#index-page">index page</a> (default: <code class="prettyprint">home.html</code>)</td>
 </tr>
 <tr>
 <td>BASE_PAGE</td>
-<td>A string representing the base page, which includes things like the navbar and footer and is loaded on every page (default: <code class="prettyprint">base.html</code>)</td>
+<td>A string representing the base <a href="#page">page</a>, which includes things like the navbar and footer and is loaded on every page (default: <code class="prettyprint">base.html</code>)</td>
 </tr>
 <tr>
 <td>PAGE_404</td>
-<td>A string representing the 404 page, which is loaded when the page the user is looking for isn&rsquo;t found (default: <code class="prettyprint">404.html</code>)</td>
+<td>A string representing the 404 <a href="#page">page</a>, which is loaded when the page the user is looking for isn&rsquo;t found (default: <code class="prettyprint">404.html</code>)</td>
 </tr>
 <tr>
 <td>PAGE_ID</td>
@@ -178,7 +179,7 @@ Singulr can be used on one index page.</p>
 </tr>
 <tr>
 <td>CONTENT_ID</td>
-<td>A string representing the id of the div which the actual page is loaded into (default: <code class="prettyprint">content</code>)</td>
+<td>A string representing the id of the div which the actual <a href="#page">page</a> is loaded into (default: <code class="prettyprint">content</code>)</td>
 </tr>
 <tr>
 <td>dependencies</td>
@@ -187,7 +188,7 @@ Singulr can be used on one index page.</p>
 </tbody></table>
 
 <aside class="warning">
-  The `CONTENT_ID` div is inside the base, not the index file.
+  The `CONTENT_ID` div is inside the base, not the [index page](#index-page).
 </aside>
 
 <h2 id="getpage">getPage</h2>
@@ -195,20 +196,20 @@ Singulr can be used on one index page.</p>
 <blockquote>
 <p>Log the current page to the console</p>
 </blockquote>
-<pre class="highlight plaintext"><code>console.log(Singulr.getPage());
+<pre class="highlight javascript"><code><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Singulr</span><span class="p">.</span><span class="nx">getPage</span><span class="p">());</span>
 </code></pre>
 
-<p>Returns the current page (returns the home page if currently on index)</p>
+<p>Returns the current page (returns the home page if currently on <a href="#index-page">index page</a>)</p>
 
 <h2 id="loadpage">loadPage</h2>
 
 <blockquote>
 <p>Go to about.html</p>
 </blockquote>
-<pre class="highlight plaintext"><code>Singulr.loadPage('about.html')
+<pre class="highlight javascript"><code><span class="nx">Singulr</span><span class="p">.</span><span class="nx">loadPage</span><span class="p">(</span><span class="s1">'about.html'</span><span class="p">)</span>
 </code></pre>
 
-<p>Usage: `Singulr.loadPage(page);</p>
+<p>Usage: <code class="prettyprint">Singulr.loadPage(page);</code></p>
 
 <table><thead>
 <tr>
@@ -222,22 +223,103 @@ Singulr can be used on one index page.</p>
 </tr>
 </tbody></table>
 
-<h1 id="installation-guide">Installation Guide</h1>
+          <h1 id="installation-guide-simple">Installation Guide (simple)</h1>
+
+<h2 id="add-singulr">Add Singulr</h2>
+
+<h3 id="include-script">Include script</h3>
+
+<blockquote>
+<p>Add this code to the bottom of the body</p>
+</blockquote>
+<pre class="highlight html"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://rawgit.com/richyliu/singulr/release/singulr.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre>
+
+<p>Start off by adding singulr.min.js to your website, preferably at the bottom of
+the body.</p>
+
+<h3 id="init-singulr">Init Singulr</h3>
+
+<blockquote>
+<p>Example</p>
+</blockquote>
+<pre class="highlight javascript"><code><span class="nx">Singulr</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="na">onPageLoaded</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Singulr</span><span class="p">.</span><span class="nx">getPage</span><span class="p">())</span>
+  <span class="p">},</span>
+  <span class="nx">PAGE_ID</span><span class="err">:</span> <span class="s1">'the_page_id'</span><span class="p">,</span>
+  <span class="nx">CONTENT_ID</span><span class="err">:</span> <span class="s1">'the_content_id'</span><span class="p">,</span>
+  <span class="nx">dependencies</span><span class="err">:</span> <span class="p">{</span>
+    <span class="nl">javascript</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s1">'https://code.jquery.com/jquery-2.2.0.min.js'</span><span class="p">,</span>
+      <span class="s1">'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js'</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="nx">css</span><span class="err">:</span> <span class="p">[</span>
+      <span class="s1">'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'</span><span class="p">,</span>
+      <span class="s1">'css/main.css'</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+
+<p>Init Singulr with <code class="prettyprint">Singulr.init()</code>. You can provide <a href="#options">options</a> as well.</p>
+
+<h2 id="add-redirect-script">Add Redirect Script</h2>
+
+<blockquote>
+<p>Make sure you add this code first inside the head, so it executes first before anything else.</p>
+</blockquote>
+<pre class="highlight html"><code><span class="nt">&lt;script </span><span class="na">id=</span><span class="s">"singulr-ignore"</span><span class="nt">&gt;</span><span class="kd">var</span> <span class="nx">a</span><span class="o">=</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="p">;</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="o">=</span><span class="s1">'/index.html?'</span><span class="o">+</span><span class="nb">encodeURIComponent</span><span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/</span><span class="se">[^\/](\/[\w\%\-\_]</span><span class="sr">+</span><span class="se">(\.[</span><span class="sr">a-zA-Z</span><span class="se">]</span><span class="sr">+</span><span class="se">)?)</span><span class="sr">+</span><span class="se">(?:(?=\#</span><span class="sr">|</span><span class="se">\?)</span><span class="sr">|$</span><span class="se">)</span><span class="sr">/</span><span class="p">)[</span><span class="mi">0</span><span class="p">].</span><span class="nx">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="nt">&lt;/script&gt;</span>
+</code></pre>
+
+<p>Add this code to the top of the head in every <a href="#page">page</a> except for the
+<a href="#index-page">index page</a>.</p>
+
+          <h1 id="installation-guide-advanced">Installation Guide (advanced)</h1>
 
 <h2 id="add-singulr">Add Singulr</h2>
 
 <blockquote>
 <p>Add this code to the bottom of the body</p>
 </blockquote>
+<pre class="highlight html"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"https://rawgit.com/richyliu/singulr/release/singulr.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre>
 
-<p>Start off by adding singulr.min.js to your website</p>
+<p>Start off by adding singulr.min.js to your website, preferably at the bottom of
+the body.</p>
 
-<h1 id="terminology">Terminology</h1>
+<blockquote>
+<p>Example</p>
+</blockquote>
+<pre class="highlight javascript"><code><span class="nx">Singulr</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="na">dependencies</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">javascript</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s1">'foo/bar.js'</span><span class="p">,</span>
+      <span class="s1">'main.js'</span>
+    <span class="p">],</span> <span class="na">css</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s1">'stylesheet.css'</span><span class="p">,</span>
+      <span class="s1">'http://example.com/foo.css'</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre>
+
+<h2 id="add-dependencies">Add dependencies</h2>
+
+<p>Then, add your dependencies that aren&rsquo;t necessary to the dependencies in
+<a href="#options">options</a></p>
+
+          <h1 id="terminology">Terminology</h1>
 
 <h2 id="page">Page</h2>
 
-<p>The word <code class="prettyprint">page</code> is used to describe a page that is loaded every time you click a
+<p>The term <code class="prettyprint">page</code> is used to describe a page that is loaded every time you click a
 link or use Singulr.loadPage() to load a page</p>
+
+<h2 id="index-page">Index page</h2>
+
+<p>The term <code class="prettyprint">index page</code> is used to describe the page that you load singulr.min.js
+on.</p>
 
       </div>
       <div class="dark-box">
