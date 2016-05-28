@@ -54,8 +54,8 @@ for line in w:
     offset += len(line)
 w.seek(0)
 
-# Now, to skip to line n (with the first line being line 0), just do
-w.seek(line_offset[25])
+# Now, to skip to line 3 (with the first line being line 0), just do
+w.seek(line_offset[2])
 
 w.write(data)
 w.truncate()

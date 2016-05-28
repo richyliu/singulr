@@ -1,4 +1,4 @@
-/*! Singulr v0.0.1r6 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r7 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - 
