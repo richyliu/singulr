@@ -10,17 +10,17 @@
     </head>
     
     <body>
-        <div id="wrapper">
-            <div id="loader-wrapper">
-                <div id="loader">
+        <!--<div id="wrapper">-->
+        <!--    <div id="loader-wrapper">-->
+        <!--        <div id="loader">-->
                     
-                </div>
+        <!--        </div>-->
                 
-                <div class="loader-section section-left"></div>
-                <div class="loader-section section-right"></div>
-            </div>
+        <!--        <div class="loader-section section-left"></div>-->
+        <!--        <div class="loader-section section-right"></div>-->
+        <!--    </div>-->
             <div id="page"></div>
-        </div>
+        <!--</div>-->
         
         <div id="swipe-to"></div>
         
@@ -61,7 +61,7 @@
                     var elements = document.getElementsByTagName('a');
                     var page = Singulr.getPage();
                     
-                    console.log('page: ' + page);
+                    console.log('page (onpageloaded): ' + page);
                     
                     for (var i = 0; i < elements.length; i++) { 
                         if (page === elements[i].getAttribute('href')) {

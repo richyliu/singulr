@@ -1,4 +1,4 @@
-/*! Singulr v0.0.1r8 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r9 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - 
@@ -23,7 +23,6 @@
     var addedContent = [];
     var removalQueue = [];
     var addOnLoad = [];
-    var allScripts = [];
     
     var options = {
         onDocumentLoaded: function() {},
@@ -67,7 +66,6 @@
                 // css
                 var styleDependencies = options.dependencies.css;
                 var loadedCss = [];
-                console.log(loadedCss);
                 var curStylesheet;
                 for (var i = 0; i < styleDependencies.length; i++) {
                     curStylesheet = loadCSS(styleDependencies[i]);
@@ -88,7 +86,9 @@
                             curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
                             curFullPageUrl = decodeURIComponent(curFullPageUrl);
                             replacePage(curFullPageUrl);
-                            if (curFullPageUrl.length > 0 && getPageWithFolder() !== currentPage) {
+                            console.log('curFullPageUrl: ' + curFullPageUrl);
+                            printStackTrace();
+                            if (curFullPageUrl.length > 0) {
                                 loadPageExternal(curFullPageUrl);
                             } else {
                                 loadPage(options.HOME_PAGE);
@@ -144,7 +144,7 @@
     
     
     function loadPageExternal(page) {
-        console.log('loading: ' + page);
+        console.log('load page external: ' + page);
         setPage(page);
         loadPage(page);
     }
@@ -170,8 +170,6 @@
                 removeNodesInQueue();
                 addedContent = [];
             }
-            
-            bindEventHandlers();
             
             
             // check if page is valid
@@ -313,15 +311,17 @@
                 } else {
                     throw new Error('Invalid callback return!');
                 }
-                options.onDocumentLoaded();
             } else if (xhr.status === 404) {
                 loadPage(options.PAGE_404);
             }
             
-            loadScripts(addOnLoad);
-            addOnLoad = [];
-            
-            options.onPageLoaded();
+            options.onDocumentLoaded();
+            loadScripts(addOnLoad, function() {
+                addOnLoad = [];
+
+                options.onPageLoaded();
+                bindEventHandlers();
+            });
         };
         
         xhr.send();
@@ -343,24 +343,17 @@
     
     
     function loadScripts(scripts, callback) {
-        if (scripts.length === 0) {
-            return;
+        if (scripts.length > 0) {
+            miniLoadScripts(0, scripts, callback || function() {});
         }
-        callback = callback || function() {};
-        console.log(scripts);
-        
-        allScripts = [];
-        allScripts = scripts;
-        
-        miniLoadScripts(0, callback);
     }
     
     
-    function miniLoadScripts(currentIndex, callback) {
+    function miniLoadScripts(currentIndex, allScripts, callback) {
         if (allScripts[currentIndex][0] === 'src') {
             getScript(allScripts[currentIndex][1], function() {
                 if (allScripts[currentIndex + 1] !== undefined) {
-                    miniLoadScripts(currentIndex + 1, callback);
+                    miniLoadScripts(currentIndex + 1, allScripts, callback);
                 } else {
                     callback();
                 }
@@ -368,7 +361,7 @@
         } else if (allScripts[currentIndex][0] === 'code') {
             globalEval(allScripts[currentIndex][1]);
             if (allScripts[currentIndex + 1] !== undefined) {
-                miniLoadScripts(currentIndex + 1, callback);
+                miniLoadScripts(currentIndex + 1, allScripts, callback);
             } else {
                 callback();
             }
