@@ -315,11 +315,11 @@
                 loadPage(options.PAGE_404);
             }
             
-            options.onDocumentLoaded();
+            if (elementId === options.PAGE_ID) options.onDocumentLoaded();
             loadScripts(addOnLoad, function() {
                 addOnLoad = [];
                 
-                options.onPageLoaded();
+                if (elementId === options.PAGE_ID) options.onPageLoaded();
                 bindEventHandlers();
             });
             
