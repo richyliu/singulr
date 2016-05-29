@@ -1,4 +1,4 @@
-/*! Singulr v0.0.1r9 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r10 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - 
@@ -318,10 +318,11 @@
             options.onDocumentLoaded();
             loadScripts(addOnLoad, function() {
                 addOnLoad = [];
-
+                
                 options.onPageLoaded();
                 bindEventHandlers();
             });
+            
         };
         
         xhr.send();
@@ -345,6 +346,8 @@
     function loadScripts(scripts, callback) {
         if (scripts.length > 0) {
             miniLoadScripts(0, scripts, callback || function() {});
+        } else {
+            if (typeof callback === 'function') callback();
         }
     }
     
@@ -355,7 +358,7 @@
                 if (allScripts[currentIndex + 1] !== undefined) {
                     miniLoadScripts(currentIndex + 1, allScripts, callback);
                 } else {
-                    callback();
+                    if (typeof callback === 'function') callback();
                 }
             });
         } else if (allScripts[currentIndex][0] === 'code') {
@@ -363,7 +366,7 @@
             if (allScripts[currentIndex + 1] !== undefined) {
                 miniLoadScripts(currentIndex + 1, allScripts, callback);
             } else {
-                callback();
+                if (typeof callback === 'function') callback();
             }
         }
     }
