@@ -1,4 +1,4 @@
-/*! Singulr v0.0.1r7 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r8 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - 
@@ -42,15 +42,6 @@
     };
     
     
-    String.prototype.allIndexOf = function (lookFor) {
-        var indices = [];
-        for (var i = 0; i < this.length; i++) {
-            if (this[i] === lookFor) indices.push(i);
-        }
-        return indices;
-    };
-    
-    
     
     
     window.Singulr = {
@@ -90,6 +81,7 @@
                         // all css (and javascript) loaded
                         options.onDependenciesLoaded();
                         
+                        
                         // load base and page
                         ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
                             var curFullPageUrl = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
@@ -108,7 +100,7 @@
             
             
         },
-        getPage: getPageWithFolder,
+        getPage: getFullPageWithFolder,
         loadPage: loadPageExternal,
     };
     
@@ -152,6 +144,7 @@
     
     
     function loadPageExternal(page) {
+        console.log('loading: ' + page);
         setPage(page);
         loadPage(page);
     }
@@ -416,48 +409,38 @@
     }
     
     
-    function getFullPage() {
-        // matches hello.html#hello?poo=1 in:
-        /*
-            https://example.com/folder/hello.html#hello?poo=1
-        */
-        return window.location.href.substr(window.location.href.lastIndexOf("/") + 1);
-    }
     
-    
-    function getPage() {
+    function getPageWithFolder() {
+        // index page
         if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
-            return options.HOME_PAGE;
+            return '/' + options.HOME_PAGE;
         } else {
-            // matches hello.html in:
+            // matches /folder/hello.html in:
             /*
                 https://example.com/folder/hello.html#hello?poo=1
                 https://example.com/folder/hello.html?poo=1
                 https://example.com/folder/hello.html
             */
-            return window.location.href.match(/\/[\w\%\-\_]+\.[a-zA-Z]+(?:(?=#|\?)|$)/)[0].substr(1);
+            return window.location.href.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1);
         }
     }
     
     
-    function getPageWithFolder() {
+    function getFullPageWithFolder() {
+        // index page
         if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
-            return options.HOME_PAGE;
+            return '/' + options.HOME_PAGE;
         } else {
-            return getPageWithFolderFromFullUrl(window.location.href);
+            /*
+                https://example.com/folder/hello.html#hello?poo=1
+                    match /folder/hello.html#hello?poo=1
+                https://example.com/folder/hello.html?poo=1
+                    match /folder/hello.html?poo=1
+                https://example.com/folder/hello.html
+                    match /folder/hello.html
+            */
+            return window.location.href.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+.*$/)[0].substr(1);
         }
-    }
-    
-    
-    function getPageWithFolderFromFullUrl(fullUrl) {
-        console.log('full url: ' + fullUrl);
-        // matches /folder/hello.html in:
-        /*
-            https://example.com/folder/hello.html#hello?poo=1
-            https://example.com/folder/hello.html?poo=1
-            https://example.com/folder/hello.html
-        */
-        return fullUrl.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1);
     }
     
     
