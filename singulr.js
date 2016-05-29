@@ -24,6 +24,7 @@
     var removalQueue = [];
     var addOnLoad = [];
     var allScripts = [];
+    var once = true;
     
     var options = {
         onDocumentLoaded: function() {},
@@ -67,7 +68,6 @@
                 // css
                 var styleDependencies = options.dependencies.css;
                 var loadedCss = [];
-                console.log(loadedCss);
                 var curStylesheet;
                 for (var i = 0; i < styleDependencies.length; i++) {
                     curStylesheet = loadCSS(styleDependencies[i]);
@@ -88,7 +88,8 @@
                             curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
                             curFullPageUrl = decodeURIComponent(curFullPageUrl);
                             replacePage(curFullPageUrl);
-                            if (curFullPageUrl.length > 0 && getPageWithFolder() !== currentPage) {
+                            console.log('curFullPageUrl: ' + curFullPageUrl);
+                            if (curFullPageUrl.length > 0) {
                                 loadPageExternal(curFullPageUrl);
                             } else {
                                 loadPage(options.HOME_PAGE);
@@ -144,7 +145,7 @@
     
     
     function loadPageExternal(page) {
-        console.log('loading: ' + page);
+        console.log('load page external: ' + page);
         setPage(page);
         loadPage(page);
     }
@@ -170,8 +171,6 @@
                 removeNodesInQueue();
                 addedContent = [];
             }
-            
-            bindEventHandlers();
             
             
             // check if page is valid
@@ -313,15 +312,17 @@
                 } else {
                     throw new Error('Invalid callback return!');
                 }
-                options.onDocumentLoaded();
             } else if (xhr.status === 404) {
                 loadPage(options.PAGE_404);
             }
             
-            loadScripts(addOnLoad);
-            addOnLoad = [];
-            
-            options.onPageLoaded();
+            options.onDocumentLoaded();
+            loadScripts(addOnLoad, function() {
+                addOnLoad = [];
+
+                options.onPageLoaded();
+                bindEventHandlers();
+            });
         };
         
         xhr.send();
@@ -347,7 +348,6 @@
             return;
         }
         callback = callback || function() {};
-        console.log(scripts);
         
         allScripts = [];
         allScripts = scripts;
