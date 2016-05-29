@@ -110,7 +110,8 @@
       </div>
         <ul class="toc-footer">
             <li><a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a></li>
-            <li><p>Beta v0.0.1r5</p></li>
+            <li><p>Beta v0.0.1r10</p></li>
+            <li><a href='https://github.com/richyliu/singulr'>View on Github</a></li>
         </ul>
     </div>
     <div class="page-wrapper">
@@ -167,7 +168,7 @@ Singulr can only be used on one <a href="#index-page">index page</a>.</p>
 </tr>
 <tr>
 <td>BASE_PAGE</td>
-<td>A string representing the base <a href="#page">page</a>, which includes things like the navbar and footer and is loaded on every page (default: <code class="prettyprint">base.html</code>)</td>
+<td>A string representing the <a href="#base-page">base page</a>, which includes things like the navbar and footer and is loaded on every page (default: <code class="prettyprint">base.html</code>)</td>
 </tr>
 <tr>
 <td>PAGE_404</td>
@@ -175,7 +176,7 @@ Singulr can only be used on one <a href="#index-page">index page</a>.</p>
 </tr>
 <tr>
 <td>PAGE_ID</td>
-<td>A string representing the id of the div which the base is loaded into (default: <code class="prettyprint">page</code>)</td>
+<td>A string representing the id of the div which the <a href="#base-page">base page</a> is loaded into (default: <code class="prettyprint">page</code>)</td>
 </tr>
 <tr>
 <td>CONTENT_ID</td>
@@ -183,12 +184,12 @@ Singulr can only be used on one <a href="#index-page">index page</a>.</p>
 </tr>
 <tr>
 <td>dependencies</td>
-<td><ul><li><code>javascript</code>: list of javascript file urls to be loaded</li><li><code>css</code>: list of css file urls to be loaded</li></ul></td>
+<td><ul><li><code>javascript</code>: list of javascript file urls to be loaded. Note: the scripts are loaded in order.</li><li><code>css</code>: list of css file urls to be loaded. Note: the styles are loaded in parallel.</li></ul></td>
 </tr>
 </tbody></table>
 
 <aside class="warning">
-  The `CONTENT_ID` div is inside the base, not the [index page](#index-page).
+  The `CONTENT_ID` div is inside the <a href="#base-page">base page</a>, not the <a href="#index-page">index page</a>
 </aside>
 
 <h2 id="getpage">getPage</h2>
@@ -204,12 +205,12 @@ Singulr can only be used on one <a href="#index-page">index page</a>.</p>
 <h2 id="loadpage">loadPage</h2>
 
 <blockquote>
-<p>Go to about.html</p>
+<p>Example (loads <code class="prettyprint">about.html</code>)</p>
 </blockquote>
 <pre class="highlight javascript"><code><span class="nx">Singulr</span><span class="p">.</span><span class="nx">loadPage</span><span class="p">(</span><span class="s1">'about.html'</span><span class="p">)</span>
 </code></pre>
 
-<p>Usage: <code class="prettyprint">Singulr.loadPage(page);</code></p>
+<p>Use this instead of setting <code class="prettyprint">window.location.href</code></p>
 
 <table><thead>
 <tr>
@@ -222,6 +223,120 @@ Singulr can only be used on one <a href="#index-page">index page</a>.</p>
 <td>Takes a string page as an input, and loads the page, similar to clicking a link on a page</td>
 </tr>
 </tbody></table>
+
+<h1 id="notes">Notes</h1>
+
+<h2 id="link-event-handlers">Link event handlers</h2>
+
+<p>Do not bind event handlers to <code class="prettyprint">&lt;a&gt;</code> tags with <code class="prettyprint">element.addEventListener(&#39;click&#39;)</code>.
+Instead use <code class="prettyprint">element.onclick</code>.</p>
+
+<h2 id="keyframes">Keyframes</h2>
+
+<p>If you are using keyframes, do not have a keyframe name <code class="prettyprint">fLhpiHgvMd</code>.</p>
+
+<h1 id="page-layout">Page Layout</h1>
+
+<h2 id="necessary-parts">Necessary Parts</h2>
+
+<p>Include <a href="#add-redirect-script">this</a> at the top of every page!</p>
+
+<h2 id="css-links">CSS Links</h2>
+
+<blockquote>
+<p>Valid</p>
+</blockquote>
+<pre class="highlight html"><code><span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"css/foo.css"</span> <span class="na">type=</span><span class="s">"text/css"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"css/foo.css"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"css/foo.css"</span> <span class="na">type=</span><span class="s">"text/css"</span> <span class="na">foo=</span><span class="s">"bar"</span><span class="nt">&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Invalid</p>
+</blockquote>
+<pre class="highlight html"><code><span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">"css/foo.css"</span> <span class="na">type=</span><span class="s">"text/css"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"css/foo.css"</span> <span class="na">type=</span><span class="s">"text/css"</span><span class="nt">&gt;</span>
+</code></pre>
+
+<p>You can put link elements anywhere, both in the body and head. Make sure you
+use the format <code class="prettyprint">&lt;link rel=&quot;stylesheet&quot; href=&quot;css/foo.css&quot; type=&quot;text/css&quot;&gt;</code>.</p>
+
+<h2 id="css-styles">CSS Styles</h2>
+
+<blockquote>
+<p>Valid</p>
+</blockquote>
+<pre class="highlight html"><code><span class="nt">&lt;style&gt;</span>
+    <span class="nc">.foo</span> <span class="p">{</span>
+        <span class="nl">color</span><span class="p">:</span> <span class="no">blue</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="o">&lt;/</span><span class="nt">style</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="nt">style</span><span class="o">&gt;</span>
+    <span class="nt">abcdefg</span>
+<span class="o">&lt;/</span><span class="nt">style</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="nt">style</span><span class="o">&gt;</span><span class="nt">&lt;/style&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Invalid</p>
+</blockquote>
+<pre class="highlight html"><code><span class="nt">&lt;sty&gt;</span>
+    abcdefg
+<span class="nt">&lt;/sty&gt;</span>
+</code></pre>
+
+<p>You can also put css directly in <code class="prettyprint">&lt;style&gt;</code> tags.</p>
+
+<h2 id="inline-javascript">Inline Javascript</h2>
+
+<blockquote>
+<p>Valid</p>
+</blockquote>
+<pre class="highlight html"><code><span class="nt">&lt;script&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'foobarbaz'</span><span class="p">);</span>
+<span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;script&gt;</span><span class="nx">abcdefg</span><span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;script&gt;&lt;/script&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Invalid</p>
+</blockquote>
+<pre class="highlight html"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"foo.js"</span><span class="nt">&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'bar'</span><span class="p">);</span>
+    <span class="c1">// In this case, foo.js is loaded and console.log('bar')</span>
+<span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;script&gt;</span><span class="nx">abcdefg</span><span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;script&gt;&lt;/script&gt;</span>
+</code></pre>
+
+<p>You can inline javascript code anywhere. Code in the head will be ran before the
+the body is loaded.</p>
+
+<h2 id="external-javascript">External Javascript</h2>
+
+<blockquote>
+<p>Valid</p>
+</blockquote>
+<pre class="highlight html"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"foo.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"path/to/foo.js"</span><span class="nt">&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'bar'</span><span class="p">);</span>
+    <span class="c1">// In this case, path/to/foo.js is loaded and console.log('bar')</span>
+<span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"foo.js"</span> <span class="na">bar=</span><span class="s">"baz"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Invalid</p>
+</blockquote>
+<pre class="highlight html"><code><span class="nt">&lt;script&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"foo.js"</span><span class="nt">&gt;</span><span class="err">
+</span></code></pre>
+
+<p>You can use external javascript code
+(<code class="prettyprint">&lt;script src=&quot;path/to/javascriptfile.js&quot;&gt;&lt;/script&gt;</code>) anywhere. Code in the head
+will be ran before the body is loaded.</p>
 
           <h1 id="installation-guide-simple">Installation Guide (simple)</h1>
 
@@ -316,10 +431,15 @@ the body.</p>
 <p>The term <code class="prettyprint">page</code> is used to describe a page that is loaded every time you click a
 link or use Singulr.loadPage() to load a page</p>
 
-<h2 id="index-page">Index page</h2>
+<h2 id="index-page">Index Page</h2>
 
 <p>The term <code class="prettyprint">index page</code> is used to describe the page that you load singulr.min.js
 on.</p>
+
+<h2 id="base-page">Base Page</h2>
+
+<p>The term <code class="prettyprint">index page</code> is used to describe the html page that the page is loaded
+into. Typically this page includes the navbar and footer.</p>
 
       </div>
       <div class="dark-box">
