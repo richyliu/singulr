@@ -23,8 +23,6 @@
     var addedContent = [];
     var removalQueue = [];
     var addOnLoad = [];
-    var allScripts = [];
-    var once = true;
     
     var options = {
         onDocumentLoaded: function() {},
@@ -89,6 +87,7 @@
                             curFullPageUrl = decodeURIComponent(curFullPageUrl);
                             replacePage(curFullPageUrl);
                             console.log('curFullPageUrl: ' + curFullPageUrl);
+                            printStackTrace();
                             if (curFullPageUrl.length > 0) {
                                 loadPageExternal(curFullPageUrl);
                             } else {
@@ -344,23 +343,17 @@
     
     
     function loadScripts(scripts, callback) {
-        if (scripts.length === 0) {
-            return;
+        if (scripts.length > 0) {
+            miniLoadScripts(0, scripts, callback || function() {});
         }
-        callback = callback || function() {};
-        
-        allScripts = [];
-        allScripts = scripts;
-        
-        miniLoadScripts(0, callback);
     }
     
     
-    function miniLoadScripts(currentIndex, callback) {
+    function miniLoadScripts(currentIndex, allScripts, callback) {
         if (allScripts[currentIndex][0] === 'src') {
             getScript(allScripts[currentIndex][1], function() {
                 if (allScripts[currentIndex + 1] !== undefined) {
-                    miniLoadScripts(currentIndex + 1, callback);
+                    miniLoadScripts(currentIndex + 1, allScripts, callback);
                 } else {
                     callback();
                 }
@@ -368,7 +361,7 @@
         } else if (allScripts[currentIndex][0] === 'code') {
             globalEval(allScripts[currentIndex][1]);
             if (allScripts[currentIndex + 1] !== undefined) {
-                miniLoadScripts(currentIndex + 1, callback);
+                miniLoadScripts(currentIndex + 1, allScripts, callback);
             } else {
                 callback();
             }
