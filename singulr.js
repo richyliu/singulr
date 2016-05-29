@@ -168,9 +168,12 @@
         document.addEventListener('webkitAnimationStart', nodeInserted, false);
         
         var style = document.createElement('style');
-        style.innerHTML = '@-webkit-keyframes N{}@-moz-keyframes N{}' +
-            '@-o-keyframes N{}@keyframes N{}a{-webkit-animation-name:N;' +
-            '-moz-animation-name:N;-o-animation-name:N;animation-name:N}';
+        // fLhpiHgvMd is a randomly generated string
+        style.innerHTML = '@-webkit-keyframes fLhpiHgvMd{}' +
+            '@-moz-keyframes fLhpiHgvMd{}@-o-keyframes fLhpiHgvMd{}' +
+            '@keyframes fLhpiHgvMd{}a{-webkit-animation-name:fLhpiHgvMd;' +
+            '-moz-animation-name:fLhpiHgvMd;-o-animation-name:fLhpiHgvMd;' +
+            'animation-name:fLhpiHgvMd}';
         document.getElementsByTagName('head')[0].appendChild(style);
     }
     
