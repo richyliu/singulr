@@ -23,6 +23,7 @@
     var addedContent = [];
     var removalQueue = [];
     var addOnLoad = [];
+    var doOnce = true;
     
     var options = {
         onDocumentLoaded: function() {},
@@ -53,6 +54,9 @@
                     }
                 }
             }
+            
+            
+            bindNodeInsertionHandler();
             
             
             // load dependencies
@@ -139,6 +143,35 @@
         function onpopstate(event) {
             loadPage(document.location.href.substr(document.location.href.lastIndexOf('/') + 1));
         }
+    }
+    
+    
+    
+    function bindNodeInsertionHandler() {
+        // on DOM add hack
+        // http://www.backalleycoder.com/2012/04/25/i-want-a-damnodeinserted/
+        function nodeInserted(event) {
+            if (event.animationName == 'N') {
+                console.log('node inserted!');
+                console.log(event);
+                bindEventHandlers();
+            }
+        }
+        
+        // remove previous event handlers
+        document.removeEventListener('animationstart', nodeInserted, false);
+        document.removeEventListener('MSAnimationStart', nodeInserted, false);
+        document.removeEventListener('webkitAnimationStart', nodeInserted, false);
+        
+        document.addEventListener('animationstart', nodeInserted, false);
+        document.addEventListener('MSAnimationStart', nodeInserted, false);
+        document.addEventListener('webkitAnimationStart', nodeInserted, false);
+        
+        var style = document.createElement('style');
+        style.innerHTML = '@-webkit-keyframes N{}@-moz-keyframes N{}' +
+            '@-o-keyframes N{}@keyframes N{}a{-webkit-animation-name:N;' +
+            '-moz-animation-name:N;-o-animation-name:N;animation-name:N}';
+        document.getElementsByTagName('head')[0].appendChild(style);
     }
     
     
@@ -315,11 +348,13 @@
                 loadPage(options.PAGE_404);
             }
             
-            if (elementId === options.PAGE_ID) options.onDocumentLoaded();
+            if (elementId === options.CONTENT_ID) options.onDocumentLoaded();
+                
             loadScripts(addOnLoad, function() {
                 addOnLoad = [];
                 
-                if (elementId === options.PAGE_ID) options.onPageLoaded();
+                if (elementId === options.CONTENT_ID) options.onPageLoaded();
+                
                 bindEventHandlers();
             });
             
@@ -358,7 +393,7 @@
                 if (allScripts[currentIndex + 1] !== undefined) {
                     miniLoadScripts(currentIndex + 1, allScripts, callback);
                 } else {
-                    if (typeof callback === 'function') callback();
+                    callback();
                 }
             });
         } else if (allScripts[currentIndex][0] === 'code') {
@@ -366,7 +401,7 @@
             if (allScripts[currentIndex + 1] !== undefined) {
                 miniLoadScripts(currentIndex + 1, allScripts, callback);
             } else {
-                if (typeof callback === 'function') callback();
+                callback();
             }
         }
     }
