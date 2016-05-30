@@ -4,7 +4,7 @@
      - 
     
     FEATURES:
-     - load fonts
+     - add singulr.js to every page
      - accept seperate pages which do not follow base
      - dynamically change favicon
     
@@ -19,11 +19,12 @@
 
 
 // (function (document, window) {
+    console.log('fo');
+    
     var currentPage = '';
     var addedContent = [];
     var removalQueue = [];
     var addOnLoad = [];
-    var doOnce = true;
     
     var options = {
         onDocumentLoaded: function() {},
@@ -60,6 +61,9 @@
             
             
             // load dependencies
+            var javascriptLoaded = false;
+            var cssLoaded = true;
+            
             
             // javascript
             var javascriptDependencies = [];
@@ -67,40 +71,52 @@
                 javascriptDependencies.push(['src', options.dependencies.javascript[i]]);
             }
             loadScripts(javascriptDependencies, function() {
-                // css
-                var styleDependencies = options.dependencies.css;
-                var loadedCss = [];
-                var curStylesheet;
-                for (var i = 0; i < styleDependencies.length; i++) {
-                    curStylesheet = loadCSS(styleDependencies[i]);
-                    onloadCSS(curStylesheet, function() {
-                        loadedCss[i] = true;
-                        // if there still is unloaded css
-                        for (var i = 0; i < loadedCss.length; i++) {
-                            if (loadedCss[i] === false) return;
-                        }
-                        
-                        // all css (and javascript) loaded
-                        options.onDependenciesLoaded();
-                        
-                        
-                        // load base and page
-                        ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
-                            var curFullPageUrl = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
-                            curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
-                            curFullPageUrl = decodeURIComponent(curFullPageUrl);
-                            replacePage(curFullPageUrl);
-                            console.log('curFullPageUrl: ' + curFullPageUrl);
-                            printStackTrace();
-                            if (curFullPageUrl.length > 0) {
-                                loadPageExternal(curFullPageUrl);
-                            } else {
-                                loadPage(options.HOME_PAGE);
-                            }
-                        });
-                    });
+                javascriptLoaded = true;
+                if (cssLoaded) {
+                    doAfterDependencies();
                 }
             });
+            
+            // css
+            var styleDependencies = options.dependencies.css;
+            var loadedCss = [];
+            var curStylesheet;
+            for (var i = 0; i < styleDependencies.length; i++) {
+                curStylesheet = loadCSS(styleDependencies[i]);
+                onloadCSS(curStylesheet, function() {
+                    loadedCss[i] = true;
+                    // if there still is unloaded css
+                    for (var i = 0; i < loadedCss.length; i++) {
+                        if (loadedCss[i] === false) return;
+                    }
+                    
+                    cssLoaded = true;
+                    if (javascriptLoaded) {
+                        doAfterDependencies();
+                    }
+                });
+            }
+            
+            function doAfterDependencies() {
+                // all css (and javascript) loaded
+                options.onDependenciesLoaded();
+                
+                
+                // load base and page
+                ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
+                    var curFullPageUrl = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
+                    curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
+                    curFullPageUrl = decodeURIComponent(curFullPageUrl);
+                    replacePage(curFullPageUrl);
+                    console.log('curFullPageUrl: ' + curFullPageUrl);
+                    printStackTrace();
+                    if (curFullPageUrl.length > 0 && curFullPageUrl !== 'index.html') {
+                        loadPageExternal(curFullPageUrl);
+                    } else {
+                        loadPage(options.HOME_PAGE);
+                    }
+                });
+            }
             
             
         },
@@ -128,6 +144,7 @@
         
         
         function onclick() {
+            console.log('click!');
             var page = this.getAttribute('href');
             
             // http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
@@ -278,7 +295,7 @@
                 var scriptElements = html.getElementsByTagName('head')[0].getElementsByTagName('script');
                 
                 for (var i = 0; i < scriptElements.length; i++) {
-                    if (scriptElements[i].getAttribute('id') === 'singulr-ignore') {
+                    if (scriptElements[i].getAttribute('class') === 'singulr-ignore') {
                         continue;
                     }
                     jsSrc = scriptElements[i].getAttribute('src');
@@ -299,7 +316,7 @@
                 scriptElements = html.getElementsByTagName('body')[0].getElementsByTagName('script');
                 
                 for (var i = 0; i < scriptElements.length; i++) {
-                    if (scriptElements[i].getAttribute('id') === 'singulr-ignore') {
+                    if (scriptElements[i].getAttribute('class') === 'singulr-ignore') {
                         continue;
                     }
                     jsSrc = scriptElements[i].getAttribute('src');
@@ -360,7 +377,6 @@
                 
                 bindEventHandlers();
             });
-            
         };
         
         xhr.send();
@@ -370,7 +386,7 @@
     
     function getScript(source, callback) {
         var script = document.createElement('script');
-        script.async = 1;
+        script.async = false;
         script.onload = script.onreadystatechange = function() {
             callback();
             script.parentNode.removeChild(script);
@@ -446,7 +462,8 @@
     
     function getPageWithFolder() {
         // index page
-        if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
+        if (window.location.pathname.substr(window.location.pathname.lastIndexOf('/') + 1) === 'index.html' ||
+            window.location.pathname.charAt(window.location.pathname.length - 1) === '/') {
             return '/' + options.HOME_PAGE;
         } else {
             // matches /folder/hello.html in:
@@ -462,7 +479,8 @@
     
     function getFullPageWithFolder() {
         // index page
-        if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
+        if (window.location.pathname.substr(window.location.pathname.lastIndexOf('/') + 1) === 'index.html' ||
+            window.location.pathname.charAt(window.location.pathname.length - 1) === '/') {
             return '/' + options.HOME_PAGE;
         } else {
             /*
