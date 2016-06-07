@@ -57,6 +57,7 @@
                     }
                 }
             }
+            console.log(options);
             
             
             bindNodeInsertionHandler();
@@ -162,10 +163,6 @@
             
             // Ignore case when a hash is being tacked on the current URL
             if (link.href.indexOf('#') > -1 && link.href.replace(/#.*/, '') == window.location.href.replace(/#.*/, ''))
-                return;
-            
-            // Ignore event with default prevented
-            if (event.isDefaultPrevented())
                 return;
 
 
