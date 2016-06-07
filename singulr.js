@@ -224,15 +224,7 @@
     function loadPage(page) {
         currentPage = page;
         
-        try {
-            ajaxLoad(options.CONTENT_ID, currentPage, callback);
-        } catch (e) {
-            console.error(e);
-            loadPage(options.PAGE_404);
-        }
-        
-        
-        function callback (response) {
+        ajaxLoad(options.CONTENT_ID, currentPage, function (response) {
             // remove previous page's js and css
             if (addedContent !== []) {
                 for (var i = 0; i < addedContent.length; i++) {
@@ -362,7 +354,7 @@
             removeNodesInQueue();
             
             return html.documentElement.getElementsByTagName('body')[0].innerHTML;
-        }
+        });
     }
     
     
@@ -374,10 +366,7 @@
         
         
         if (elementId === options.CONTENT_ID) {
-            // here is ran once
-            xhr.onreadystatechange = function() {
-                // but here is ran twice
-                console.log(url);
+            xhr.onload = function() {
                 callbackMain();
                 
                 options.onDocumentLoaded();
@@ -389,7 +378,7 @@
                 });
             };
         } else {
-            xhr.onreadystatechange = function() {
+            xhr.onload = function() {
                 callbackMain();
                 
                 loadScripts(addOnLoad, function() {
@@ -401,7 +390,7 @@
         }
         
         function callbackMain() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
+            if (xhr.status === 200) {
                 var res = callback(xhr.responseText);
                 if (typeof res === 'string') {
                     document.getElementById(elementId).innerHTML = res;
@@ -412,6 +401,9 @@
                 }
             } else if (xhr.status === 404) {
                 loadPage(options.PAGE_404);
+            } else {
+                alert('Error ' + xhr.status + ': ' + xhr.statusText);
+                throw new Error('Error status: ' + xhr.status);
             }
         }
         
