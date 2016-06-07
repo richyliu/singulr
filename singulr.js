@@ -1,4 +1,4 @@
-/*! Singulr v0.0.1r14 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r15 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - 
@@ -27,6 +27,7 @@
     var addedContent = [];
     var removalQueue = [];
     var addOnLoad = [];
+    var doOnce = true;
     
     var options = {
         onDocumentLoaded: function() {},
@@ -101,10 +102,16 @@
                 });
             }
             
+            
             function doAfterDependencies() {
+                if (doOnce) {
+                    doOnce = false;
+                    return;
+                }
+                
+                
                 // all css (and javascript) loaded
                 options.onDependenciesLoaded();
-                
                 
                 // load base and page
                 ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
@@ -113,7 +120,6 @@
                     curFullPageUrl = decodeURIComponent(curFullPageUrl);
                     replacePage(curFullPageUrl);
                     console.log('curFullPageUrl: ' + curFullPageUrl);
-                    // printStackTrace();
                     if (curFullPageUrl.length > 0 && curFullPageUrl !== 'index.html') {
                         loadPageExternal(curFullPageUrl);
                     } else {
@@ -148,24 +154,22 @@
         
         
         function onclick(event) {
-            console.log('click!');
             var page = this.getAttribute('href');
             
             var link = event.target;
             
             // Middle click, cmd click, and ctrl click should open links in a new tab as normal.
-            if (event.which > 1 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
-                return;
-            
+            if (event.which > 1 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
             // Ignore cross origin links
-            if (window.location.protocol !== link.protocol || window.location.hostname !== link.hostname)
+            || window.location.protocol !== link.protocol || window.location.hostname !== link.hostname
+            // Ignore case when a hash is being tacked on the current URL
+            || link.href.indexOf('#') > -1 && link.href.replace(/#.*/, '') == window.location.href.replace(/#.*/, '')
+            // Check to make sure url is different than current
+            || window.location.pathname + window.location.hash + window.location.search === link.pathname + link.hash + link.search)
                 return;
             
-            // Ignore case when a hash is being tacked on the current URL
-            if (link.href.indexOf('#') > -1 && link.href.replace(/#.*/, '') == window.location.href.replace(/#.*/, ''))
-                return;
-
-
+            
+            console.log('click!');
             loadPageExternal(page);
             
             event.preventDefault();
@@ -220,15 +224,7 @@
     function loadPage(page) {
         currentPage = page;
         
-        try {
-            ajaxLoad(options.CONTENT_ID, currentPage, callback);
-        } catch (e) {
-            console.error(e);
-            loadPage(options.PAGE_404);
-        }
-        
-        
-        function callback (response) {
+        ajaxLoad(options.CONTENT_ID, currentPage, function (response) {
             // remove previous page's js and css
             if (addedContent !== []) {
                 for (var i = 0; i < addedContent.length; i++) {
@@ -358,7 +354,7 @@
             removeNodesInQueue();
             
             return html.documentElement.getElementsByTagName('body')[0].innerHTML;
-        }
+        });
     }
     
     
@@ -368,8 +364,33 @@
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
+        
+        if (elementId === options.CONTENT_ID) {
+            xhr.onload = function() {
+                callbackMain();
+                
+                options.onDocumentLoaded();
+                loadScripts(addOnLoad, function() {
+                    addOnLoad = [];
+                    
+                    options.onPageLoaded();
+                    bindEventHandlers();
+                });
+            };
+        } else {
+            xhr.onload = function() {
+                callbackMain();
+                
+                loadScripts(addOnLoad, function() {
+                    addOnLoad = [];
+                    
+                    bindEventHandlers();
+                });
+            };
+        }
+        
+        function callbackMain() {
+            if (xhr.status === 200) {
                 var res = callback(xhr.responseText);
                 if (typeof res === 'string') {
                     document.getElementById(elementId).innerHTML = res;
@@ -380,16 +401,12 @@
                 }
             } else if (xhr.status === 404) {
                 loadPage(options.PAGE_404);
+            } else {
+                alert('Error ' + xhr.status + ': ' + xhr.statusText);
+                throw new Error('Error status: ' + xhr.status);
             }
-            
-            if (elementId === options.PAGE_ID) options.onDocumentLoaded();
-            loadScripts(addOnLoad, function() {
-                addOnLoad = [];
-                
-                if (elementId === options.PAGE_ID) options.onPageLoaded();
-                bindEventHandlers();
-            });
-        };
+        }
+        
         
         xhr.send();
     }
