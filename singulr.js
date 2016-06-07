@@ -27,6 +27,7 @@
     var addedContent = [];
     var removalQueue = [];
     var addOnLoad = [];
+    var doOnce = true;
     
     var options = {
         onDocumentLoaded: function() {},
@@ -101,10 +102,16 @@
                 });
             }
             
+            
             function doAfterDependencies() {
+                if (doOnce) {
+                    doOnce = false;
+                    return;
+                }
+                
+                
                 // all css (and javascript) loaded
                 options.onDependenciesLoaded();
-                
                 
                 // load base and page
                 ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
@@ -113,7 +120,6 @@
                     curFullPageUrl = decodeURIComponent(curFullPageUrl);
                     replacePage(curFullPageUrl);
                     console.log('curFullPageUrl: ' + curFullPageUrl);
-                    // printStackTrace();
                     if (curFullPageUrl.length > 0 && curFullPageUrl !== 'index.html') {
                         loadPageExternal(curFullPageUrl);
                     } else {
@@ -148,24 +154,22 @@
         
         
         function onclick(event) {
-            console.log('click!');
             var page = this.getAttribute('href');
             
             var link = event.target;
             
             // Middle click, cmd click, and ctrl click should open links in a new tab as normal.
-            if (event.which > 1 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
-                return;
-            
+            if (event.which > 1 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
             // Ignore cross origin links
-            if (window.location.protocol !== link.protocol || window.location.hostname !== link.hostname)
+            || window.location.protocol !== link.protocol || window.location.hostname !== link.hostname
+            // Ignore case when a hash is being tacked on the current URL
+            || link.href.indexOf('#') > -1 && link.href.replace(/#.*/, '') == window.location.href.replace(/#.*/, '')
+            // Check to make sure url is different than current
+            || window.location.pathname + window.location.hash + window.location.search === link.pathname + link.hash + link.search)
                 return;
             
-            // Ignore case when a hash is being tacked on the current URL
-            if (link.href.indexOf('#') > -1 && link.href.replace(/#.*/, '') == window.location.href.replace(/#.*/, ''))
-                return;
-
-
+            
+            console.log('click!');
             loadPageExternal(page);
             
             event.preventDefault();
@@ -368,7 +372,35 @@
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         
-        xhr.onreadystatechange = function () {
+        
+        if (elementId === options.CONTENT_ID) {
+            // here is ran once
+            xhr.onreadystatechange = function() {
+                // but here is ran twice
+                console.log(url);
+                callbackMain();
+                
+                options.onDocumentLoaded();
+                loadScripts(addOnLoad, function() {
+                    addOnLoad = [];
+                    
+                    options.onPageLoaded();
+                    bindEventHandlers();
+                });
+            };
+        } else {
+            xhr.onreadystatechange = function() {
+                callbackMain();
+                
+                loadScripts(addOnLoad, function() {
+                    addOnLoad = [];
+                    
+                    bindEventHandlers();
+                });
+            };
+        }
+        
+        function callbackMain() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 var res = callback(xhr.responseText);
                 if (typeof res === 'string') {
@@ -381,15 +413,8 @@
             } else if (xhr.status === 404) {
                 loadPage(options.PAGE_404);
             }
-            
-            if (elementId === options.PAGE_ID) options.onDocumentLoaded();
-            loadScripts(addOnLoad, function() {
-                addOnLoad = [];
-                
-                if (elementId === options.PAGE_ID) options.onPageLoaded();
-                bindEventHandlers();
-            });
-        };
+        }
+        
         
         xhr.send();
     }
