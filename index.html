@@ -48,9 +48,6 @@
         <!--<script>-1<navigator.userAgent.search(/iPhone/)&&(document.getElementById("add-to-home-screen").style.display="block")</script>-->
         
         
-        <!-- Slideback -->
-        <script src="https://rawgit.com/richyliu/slideback/82d75ca2782dd81f28baaeee616e3df8ffba8312/slideback.min.js"></script>
-        
         <!-- Singulr -->
         <script src="singulr.js"></script>
         
@@ -79,21 +76,21 @@
                 },
                 dependencies: {
                     // Slideback
-                    javascript: ['https://rawgit.com/richyliu/slideback/gh-pages/slideback.js', 'https://cdn.firebase.com/js/client/2.2.1/firebase.js'],
-                    css: ['css/stylesheet.css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css']
+                    javascript: [/*'https://rawgit.com/richyliu/slideback/gh-pages/slideback.js', */'https://cdn.firebase.com/js/client/2.2.1/firebase.js'],
+                    css: ['css/stylesheet.css'/*, 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'*/]
                 },
                 onDependenciesLoaded: function() {
-                    Slideback();
+                    // Slideback();
                     
-                    var now = Date.now();
-                    // less than 1 second
-                    if (now - start < 1000) {
-                        setTimeout(function() {
-                            document.getElementsByTagName('body')[0].classList.add('loaded');
-                        }, 1000 - (now - start));
-                    } else {
-                        document.getElementsByTagName('body')[0].classList.add('loaded');
-                    }
+                    // var now = Date.now();
+                    // // less than 1 second
+                    // if (now - start < 1000) {
+                    //     setTimeout(function() {
+                    //         document.getElementsByTagName('body')[0].classList.add('loaded');
+                    //     }, 1000 - (now - start));
+                    // } else {
+                    //     document.getElementsByTagName('body')[0].classList.add('loaded');
+                    // }
                 }
             });
         </script>

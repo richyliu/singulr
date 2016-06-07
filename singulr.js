@@ -1,4 +1,4 @@
-/*! Singulr v0.0.1r13 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r14 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - 
@@ -57,6 +57,7 @@
                     }
                 }
             }
+            console.log(options);
             
             
             bindNodeInsertionHandler();
@@ -162,10 +163,6 @@
             
             // Ignore case when a hash is being tacked on the current URL
             if (link.href.indexOf('#') > -1 && link.href.replace(/#.*/, '') == window.location.href.replace(/#.*/, ''))
-                return;
-            
-            // Ignore event with default prevented
-            if (event.isDefaultPrevented())
                 return;
 
 
