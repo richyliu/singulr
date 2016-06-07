@@ -27,7 +27,7 @@
     var addedContent = [];
     var removalQueue = [];
     var addOnLoad = [];
-    var doOnce = true;
+    var doOnce = false;
     
     var options = {
         onDocumentLoaded: function() {},
@@ -103,10 +103,8 @@
             
             
             function doAfterDependencies() {
-                if (doOnce) {
-                    doOnce = false;
-                    return;
-                }
+                if (doOnce) return;
+                doOnce = true;
                 
                 
                 // all css (and javascript) loaded
