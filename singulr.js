@@ -1,4 +1,4 @@
-/*! Singulr v0.0.1r15 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r16 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - 
@@ -27,7 +27,7 @@
     var addedContent = [];
     var removalQueue = [];
     var addOnLoad = [];
-    var doOnce = true;
+    var doOnce = false;
     
     var options = {
         onDocumentLoaded: function() {},
@@ -58,7 +58,6 @@
                     }
                 }
             }
-            console.log(options);
             
             
             bindNodeInsertionHandler();
@@ -104,10 +103,8 @@
             
             
             function doAfterDependencies() {
-                if (doOnce) {
-                    doOnce = false;
-                    return;
-                }
+                if (doOnce) return;
+                doOnce = true;
                 
                 
                 // all css (and javascript) loaded
