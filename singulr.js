@@ -4,16 +4,20 @@
      - 
     
     FEATURES:
-     - add singulr.js to every page
      - accept seperate pages which do not follow base
      - dynamically change favicon
     
     NOTES:
      - styles applied to body aren't applied
-     - snippet needs to be added at the top of every file
-         <script id="singulr-ignore">var a=window.location.href;window.location.href='/index.html?'+encodeURIComponent(a.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1))</script>
-                                                home(where you put singulr.js) url----^^^^^^^^^^^^
+     - need to add singulr-page.js to every page
      - dependencies must be urls
+    
+    WEB APP TOOLKIT:
+     - Singulr (https://github.com/turbolinks/turbolinks)
+     - Slideback
+        * preview of previous page (https://github.com/niklasvh/html2canvas)
+     - State tracker (important!)
+     - Progress bar (https://github.com/rstacruz/nprogress)
     
 */
 
@@ -143,15 +147,29 @@
         }
         
         
-        function onclick() {
+        function onclick(event) {
             console.log('click!');
             var page = this.getAttribute('href');
             
-            // http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
-            // absolute url
-            if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1 || page === currentPage) {
+            var link = event.target;
+            
+            // Middle click, cmd click, and ctrl click should open links in a new tab as normal.
+            if (event.which > 1 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
                 return;
-            }    
+            
+            // Ignore cross origin links
+            if (window.location.protocol !== link.protocol || window.location.hostname !== link.hostname)
+                return;
+            
+            // Ignore case when a hash is being tacked on the current URL
+            if (link.href.indexOf('#') > -1 && link.href.replace(/#.*/, '') == window.location.href.replace(/#.*/, ''))
+                return;
+            
+            // Ignore event with default prevented
+            if (event.isDefaultPrevented())
+                return;
+
+
             loadPageExternal(page);
             
             event.preventDefault();
