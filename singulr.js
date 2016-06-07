@@ -1,4 +1,4 @@
-/*! Singulr v0.0.1r12 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r13 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - 
@@ -23,8 +23,6 @@
 
 
 // (function (document, window) {
-    console.log('fo');
-    
     var currentPage = '';
     var addedContent = [];
     var removalQueue = [];
@@ -114,7 +112,7 @@
                     curFullPageUrl = decodeURIComponent(curFullPageUrl);
                     replacePage(curFullPageUrl);
                     console.log('curFullPageUrl: ' + curFullPageUrl);
-                    printStackTrace();
+                    // printStackTrace();
                     if (curFullPageUrl.length > 0 && curFullPageUrl !== 'index.html') {
                         loadPageExternal(curFullPageUrl);
                     } else {
