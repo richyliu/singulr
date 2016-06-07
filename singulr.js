@@ -81,6 +81,7 @@
                 }
             });
             
+            
             // css
             var styleDependencies = options.dependencies.css;
             var loadedCss = [];
@@ -386,13 +387,11 @@
                 loadPage(options.PAGE_404);
             }
             
-            if (elementId === options.CONTENT_ID) options.onDocumentLoaded();
-                
+            if (elementId === options.PAGE_ID) options.onDocumentLoaded();
             loadScripts(addOnLoad, function() {
                 addOnLoad = [];
                 
-                if (elementId === options.CONTENT_ID) options.onPageLoaded();
-                
+                if (elementId === options.PAGE_ID) options.onPageLoaded();
                 bindEventHandlers();
             });
         };
