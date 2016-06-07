@@ -58,7 +58,6 @@
                     }
                 }
             }
-            console.log(options);
             
             
             bindNodeInsertionHandler();
