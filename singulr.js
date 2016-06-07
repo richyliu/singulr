@@ -1,24 +1,30 @@
-/*! Singulr v0.0.1r10 | (c) Richard Liu | MIT License */
+/*! Singulr v0.0.1r12 | (c) Richard Liu | MIT License */
 /*
     BUGS:
      - 
     
     FEATURES:
-     - load fonts
      - accept seperate pages which do not follow base
      - dynamically change favicon
     
     NOTES:
      - styles applied to body aren't applied
-     - snippet needs to be added at the top of every file
-         <script id="singulr-ignore">var a=window.location.href;window.location.href='/index.html?'+encodeURIComponent(a.match(/[^\/](\/[\w\%\-\_]+(\.[a-zA-Z]+)?)+(?:(?=\#|\?)|$)/)[0].substr(1))</script>
-                                                home(where you put singulr.js) url----^^^^^^^^^^^^
+     - need to add singulr-page.js to every page
      - dependencies must be urls
+    
+    WEB APP TOOLKIT:
+     - Singulr (https://github.com/turbolinks/turbolinks)
+     - Slideback
+        * preview of previous page (https://github.com/niklasvh/html2canvas)
+     - State tracker (important!)
+     - Progress bar (https://github.com/rstacruz/nprogress)
     
 */
 
 
 // (function (document, window) {
+    console.log('fo');
+    
     var currentPage = '';
     var addedContent = [];
     var removalQueue = [];
@@ -55,7 +61,13 @@
             }
             
             
+            bindNodeInsertionHandler();
+            
+            
             // load dependencies
+            var javascriptLoaded = false;
+            var cssLoaded = true;
+            
             
             // javascript
             var javascriptDependencies = [];
@@ -63,40 +75,53 @@
                 javascriptDependencies.push(['src', options.dependencies.javascript[i]]);
             }
             loadScripts(javascriptDependencies, function() {
-                // css
-                var styleDependencies = options.dependencies.css;
-                var loadedCss = [];
-                var curStylesheet;
-                for (var i = 0; i < styleDependencies.length; i++) {
-                    curStylesheet = loadCSS(styleDependencies[i]);
-                    onloadCSS(curStylesheet, function() {
-                        loadedCss[i] = true;
-                        // if there still is unloaded css
-                        for (var i = 0; i < loadedCss.length; i++) {
-                            if (loadedCss[i] === false) return;
-                        }
-                        
-                        // all css (and javascript) loaded
-                        options.onDependenciesLoaded();
-                        
-                        
-                        // load base and page
-                        ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
-                            var curFullPageUrl = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
-                            curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
-                            curFullPageUrl = decodeURIComponent(curFullPageUrl);
-                            replacePage(curFullPageUrl);
-                            console.log('curFullPageUrl: ' + curFullPageUrl);
-                            printStackTrace();
-                            if (curFullPageUrl.length > 0) {
-                                loadPageExternal(curFullPageUrl);
-                            } else {
-                                loadPage(options.HOME_PAGE);
-                            }
-                        });
-                    });
+                javascriptLoaded = true;
+                if (cssLoaded) {
+                    doAfterDependencies();
                 }
             });
+            
+            
+            // css
+            var styleDependencies = options.dependencies.css;
+            var loadedCss = [];
+            var curStylesheet;
+            for (var i = 0; i < styleDependencies.length; i++) {
+                curStylesheet = loadCSS(styleDependencies[i]);
+                onloadCSS(curStylesheet, function() {
+                    loadedCss[i] = true;
+                    // if there still is unloaded css
+                    for (var i = 0; i < loadedCss.length; i++) {
+                        if (loadedCss[i] === false) return;
+                    }
+                    
+                    cssLoaded = true;
+                    if (javascriptLoaded) {
+                        doAfterDependencies();
+                    }
+                });
+            }
+            
+            function doAfterDependencies() {
+                // all css (and javascript) loaded
+                options.onDependenciesLoaded();
+                
+                
+                // load base and page
+                ajaxLoad(options.PAGE_ID, options.BASE_PAGE, function() {
+                    var curFullPageUrl = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
+                    curFullPageUrl = curFullPageUrl.substr(curFullPageUrl.indexOf('?') + 1);
+                    curFullPageUrl = decodeURIComponent(curFullPageUrl);
+                    replacePage(curFullPageUrl);
+                    console.log('curFullPageUrl: ' + curFullPageUrl);
+                    printStackTrace();
+                    if (curFullPageUrl.length > 0 && curFullPageUrl !== 'index.html') {
+                        loadPageExternal(curFullPageUrl);
+                    } else {
+                        loadPage(options.HOME_PAGE);
+                    }
+                });
+            }
             
             
         },
@@ -123,14 +148,29 @@
         }
         
         
-        function onclick() {
+        function onclick(event) {
+            console.log('click!');
             var page = this.getAttribute('href');
             
-            // http://stackoverflow.com/questions/10687099/how-to-test-if-a-url-string-is-absolute-or-relative
-            // absolute url
-            if (page.search(new RegExp('^(?:[a-z]+:)?//', 'i')) > -1 || page === currentPage) {
+            var link = event.target;
+            
+            // Middle click, cmd click, and ctrl click should open links in a new tab as normal.
+            if (event.which > 1 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
                 return;
-            }    
+            
+            // Ignore cross origin links
+            if (window.location.protocol !== link.protocol || window.location.hostname !== link.hostname)
+                return;
+            
+            // Ignore case when a hash is being tacked on the current URL
+            if (link.href.indexOf('#') > -1 && link.href.replace(/#.*/, '') == window.location.href.replace(/#.*/, ''))
+                return;
+            
+            // Ignore event with default prevented
+            if (event.isDefaultPrevented())
+                return;
+
+
             loadPageExternal(page);
             
             event.preventDefault();
@@ -139,6 +179,38 @@
         function onpopstate(event) {
             loadPage(document.location.href.substr(document.location.href.lastIndexOf('/') + 1));
         }
+    }
+    
+    
+    
+    function bindNodeInsertionHandler() {
+        // on DOM add hack
+        // http://www.backalleycoder.com/2012/04/25/i-want-a-damnodeinserted/
+        function nodeInserted(event) {
+            if (event.animationName == 'N') {
+                console.log('node inserted!');
+                console.log(event);
+                bindEventHandlers();
+            }
+        }
+        
+        // remove previous event handlers
+        document.removeEventListener('animationstart', nodeInserted, false);
+        document.removeEventListener('MSAnimationStart', nodeInserted, false);
+        document.removeEventListener('webkitAnimationStart', nodeInserted, false);
+        
+        document.addEventListener('animationstart', nodeInserted, false);
+        document.addEventListener('MSAnimationStart', nodeInserted, false);
+        document.addEventListener('webkitAnimationStart', nodeInserted, false);
+        
+        var style = document.createElement('style');
+        // fLhpiHgvMd is a randomly generated string
+        style.innerHTML = '@-webkit-keyframes fLhpiHgvMd{}' +
+            '@-moz-keyframes fLhpiHgvMd{}@-o-keyframes fLhpiHgvMd{}' +
+            '@keyframes fLhpiHgvMd{}a{-webkit-animation-name:fLhpiHgvMd;' +
+            '-moz-animation-name:fLhpiHgvMd;-o-animation-name:fLhpiHgvMd;' +
+            'animation-name:fLhpiHgvMd}';
+        document.getElementsByTagName('head')[0].appendChild(style);
     }
     
     
@@ -242,7 +314,7 @@
                 var scriptElements = html.getElementsByTagName('head')[0].getElementsByTagName('script');
                 
                 for (var i = 0; i < scriptElements.length; i++) {
-                    if (scriptElements[i].getAttribute('id') === 'singulr-ignore') {
+                    if (scriptElements[i].getAttribute('class') === 'singulr-ignore') {
                         continue;
                     }
                     jsSrc = scriptElements[i].getAttribute('src');
@@ -263,7 +335,7 @@
                 scriptElements = html.getElementsByTagName('body')[0].getElementsByTagName('script');
                 
                 for (var i = 0; i < scriptElements.length; i++) {
-                    if (scriptElements[i].getAttribute('id') === 'singulr-ignore') {
+                    if (scriptElements[i].getAttribute('class') === 'singulr-ignore') {
                         continue;
                     }
                     jsSrc = scriptElements[i].getAttribute('src');
@@ -322,7 +394,6 @@
                 if (elementId === options.PAGE_ID) options.onPageLoaded();
                 bindEventHandlers();
             });
-            
         };
         
         xhr.send();
@@ -332,7 +403,7 @@
     
     function getScript(source, callback) {
         var script = document.createElement('script');
-        script.async = 1;
+        script.async = false;
         script.onload = script.onreadystatechange = function() {
             callback();
             script.parentNode.removeChild(script);
@@ -358,7 +429,7 @@
                 if (allScripts[currentIndex + 1] !== undefined) {
                     miniLoadScripts(currentIndex + 1, allScripts, callback);
                 } else {
-                    if (typeof callback === 'function') callback();
+                    callback();
                 }
             });
         } else if (allScripts[currentIndex][0] === 'code') {
@@ -366,7 +437,7 @@
             if (allScripts[currentIndex + 1] !== undefined) {
                 miniLoadScripts(currentIndex + 1, allScripts, callback);
             } else {
-                if (typeof callback === 'function') callback();
+                callback();
             }
         }
     }
@@ -408,7 +479,8 @@
     
     function getPageWithFolder() {
         // index page
-        if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
+        if (window.location.pathname.substr(window.location.pathname.lastIndexOf('/') + 1) === 'index.html' ||
+            window.location.pathname.charAt(window.location.pathname.length - 1) === '/') {
             return '/' + options.HOME_PAGE;
         } else {
             // matches /folder/hello.html in:
@@ -424,7 +496,8 @@
     
     function getFullPageWithFolder() {
         // index page
-        if (window.location.href.lastIndexOf('/') === window.location.href.length - 1) {
+        if (window.location.pathname.substr(window.location.pathname.lastIndexOf('/') + 1) === 'index.html' ||
+            window.location.pathname.charAt(window.location.pathname.length - 1) === '/') {
             return '/' + options.HOME_PAGE;
         } else {
             /*
