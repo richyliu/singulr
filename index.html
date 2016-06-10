@@ -62,19 +62,17 @@
             Singulr.init({
                 onPageLoaded: function() {
                     var elements = document.getElementsByTagName('a');
-                    var page = Singulr.getPage();
+                    var page = Singulr.getPage().slice(9);
                     
                     console.log('page (onpageloaded): ' + page);
                     
                     for (var i = 0; i < elements.length; i++) { 
-                        if (page.substr(9) === elements[i].getAttribute('href')) {
+                        if (page === elements[i].getAttribute('href')) {
                             elements[i].classList.add('current');
                         } else {
                             elements[i].classList.remove('current');
                         }
                     }
-                    
-                    // console.log(document);
                 },
                 dependencies: {
                     // Slideback
@@ -93,7 +91,9 @@
                     // } else {
                     //     document.getElementsByTagName('body')[0].classList.add('loaded');
                     // }
-                }
+                },
+                INDEX_PATH: '/singulr/',
+                INDEX_PAGE: '/singulr/index.html',
             });
         </script>
     </body>
