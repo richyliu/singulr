@@ -193,7 +193,10 @@ function bindNodeInsertionHandler() {
         if (event.animationName == 'N') {
             console.log('node inserted!');
             console.log(event);
-            bindEventHandlers();
+            // let user bind their event handlers
+            // they can use e.stopImmediatePropagation() to prevent this event
+            // from happening
+            setTimeout(bindEventHandlers(), 0);
         }
     }
 
