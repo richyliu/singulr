@@ -196,7 +196,7 @@ function bindNodeInsertionHandler() {
             // let user bind their event handlers
             // they can use e.stopImmediatePropagation() to prevent this event
             // from happening
-            setTimeout(bindEventHandlers(), 0);
+            setTimeout(bindEventHandlers(), 20);
         }
     }
 
