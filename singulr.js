@@ -62,7 +62,7 @@ window.Singulr = {
                 }
             }
         }
-
+        
 
         bindNodeInsertionHandler();
 
@@ -123,8 +123,7 @@ window.Singulr = {
                 console.log('curFullPageUrl: ' + curFullPageUrl);
                 if (curFullPageUrl.length > 0 && curFullPageUrl !== options.INDEX_PAGE) {
                     loadPageExternal(curFullPageUrl);
-                }
-                else {
+                } else {
                     loadPage(options.HOME_PAGE);
                 }
             });
@@ -249,8 +248,7 @@ function loadPage(page) {
         // has enclosing html tags
         if (response.search('<html>') > -1) {
             html.body.parentElement.innerHTML = response;
-        }
-        else {
+        } else {
             html.body.parentElement.innerHTML = '<html>' + response + '</html>';
         }
 
@@ -307,9 +305,8 @@ function loadPage(page) {
 
         /* load scripts in head */
         var allScripts = [];
-        if (html.getElementsByTagName('head')[0].getElementsByTagName('script') !== []) {
-            var scriptElements = html.getElementsByTagName('head')[0].getElementsByTagName('script');
-
+        var scriptElements = html.getElementsByTagName('head')[0].getElementsByTagName('script');
+        if (scriptElements !== []) {
             for (var i = 0; i < scriptElements.length; i++) {
                 if (scriptElements[i].getAttribute('class') === 'singulr-ignore') {
                     continue;
@@ -318,8 +315,7 @@ function loadPage(page) {
                 jsCode = scriptElements[i].innerHTML;
                 if (jsSrc !== null) {
                     allScripts.push(['src', jsSrc]);
-                }
-                else if (jsCode !== '') {
+                } else if (jsCode !== '') {
                     allScripts.push(['code', jsCode]);
                 }
                 addNodeToRemovalQueue(scriptElements[i]);
@@ -329,9 +325,8 @@ function loadPage(page) {
 
 
         /* deferr scripts loading in body */
-        if (html.getElementsByTagName('body')[0].getElementsByTagName('script') !== []) {
-            scriptElements = html.getElementsByTagName('body')[0].getElementsByTagName('script');
-
+        scriptElements = html.getElementsByTagName('body')[0].getElementsByTagName('script');
+        if (scriptElements !== []) {
             for (var i = 0; i < scriptElements.length; i++) {
                 if (scriptElements[i].getAttribute('class') === 'singulr-ignore') {
                     continue;
@@ -340,8 +335,7 @@ function loadPage(page) {
                 jsCode = scriptElements[i].innerHTML;
                 if (jsSrc !== null) {
                     addOnLoad.push(['src', jsSrc]);
-                }
-                else if (jsCode !== '') {
+                } else if (jsCode !== '') {
                     addOnLoad.push(['code', jsCode]);
                 }
                 addNodeToRemovalQueue(scriptElements[i]);
@@ -385,8 +379,7 @@ function ajaxLoad(elementId, url, callback) {
                 bindEventHandlers();
             });
         };
-    }
-    else {
+    } else {
         xhr.onload = function() {
             callbackMain();
 
@@ -403,18 +396,14 @@ function ajaxLoad(elementId, url, callback) {
             var res = callback(xhr.responseText);
             if (typeof res === 'string') {
                 document.getElementById(elementId).innerHTML = res;
-            }
-            else if (res === undefined) {
+            } else if (res === undefined) {
                 document.getElementById(elementId).innerHTML = xhr.responseText;
-            }
-            else {
+            } else {
                 throw new Error('Invalid callback return!');
             }
-        }
-        else if (xhr.status === 404) {
+        } else if (xhr.status === 404) {
             loadPage(options.PAGE_404);
-        }
-        else {
+        } else {
             alert('Error ' + xhr.status + ': ' + xhr.statusText);
             throw new Error('Error status: ' + xhr.status);
         }
@@ -442,8 +431,7 @@ function getScript(source, callback) {
 function loadScripts(scripts, callback) {
     if (scripts.length > 0) {
         miniLoadScripts(0, scripts, callback || function() {});
-    }
-    else {
+    } else {
         if (typeof callback === 'function') callback();
     }
 }
@@ -454,18 +442,15 @@ function miniLoadScripts(currentIndex, allScripts, callback) {
         getScript(allScripts[currentIndex][1], function() {
             if (allScripts[currentIndex + 1] !== undefined) {
                 miniLoadScripts(currentIndex + 1, allScripts, callback);
-            }
-            else {
+            } else {
                 callback();
             }
         });
-    }
-    else if (allScripts[currentIndex][0] === 'code') {
+    } else if (allScripts[currentIndex][0] === 'code') {
         evalCode(allScripts[currentIndex][1]);
         if (allScripts[currentIndex + 1] !== undefined) {
             miniLoadScripts(currentIndex + 1, allScripts, callback);
-        }
-        else {
+        } else {
             callback();
         }
     }
@@ -478,11 +463,9 @@ function miniLoadScripts(currentIndex, allScripts, callback) {
 function addNodeToRemovalQueue(node) {
     if (node === undefined || node === null) {
         console.warn('No node provided!');
-    }
-    else if (node.parentNode === null) {
+    } else if (node.parentNode === null) {
         throw new Error('Node has been already removed');
-    }
-    else {
+    } else {
         removalQueue.push(node);
     }
 }
@@ -559,8 +542,7 @@ var loadCSS = function(href, before, media) {
     var ref;
     if (before) {
         ref = before;
-    }
-    else {
+    } else {
         var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
         ref = refs[refs.length - 1];
     }
