@@ -1,7 +1,7 @@
 /*! Singulr v0.0.1r18 | (c) Richard Liu | MIT License */
 /*
     BUGS:
-     - 
+     -
     
     FEATURES:
      - custom path (not just /index.html) (with query parameters)
@@ -133,6 +133,7 @@ window.Singulr = {
     },
     getPage: getFullPageWithFolder,
     loadPage: loadPageExternal,
+    bindEventHandlers: bindEventHandlers
 };
 
 
