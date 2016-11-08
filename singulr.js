@@ -151,7 +151,9 @@ function bindEventHandlers() {
         elements[i].addEventListener('click', onclick);
     }
     if (window.onpopstate === null) {
-        window.onpopstate = onpopstate;
+        window.onpopstate = function(event) {
+            loadPage(document.location.href.substr(document.location.href.lastIndexOf('/') + 1));
+        };
     }
 
 
@@ -178,10 +180,6 @@ function bindEventHandlers() {
         loadPageExternal(page);
 
         event.preventDefault();
-    }
-
-    function onpopstate(event) {
-        loadPage(document.location.href.substr(document.location.href.lastIndexOf('/') + 1));
     }
 }
 
